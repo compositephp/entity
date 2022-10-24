@@ -1,0 +1,44 @@
+<?php declare(strict_types=1);
+
+namespace Composite\Entity\Columns;
+
+use Composite\Entity\AbstractEntity;
+
+abstract class AbstractColumn
+{
+    private ?\ReflectionProperty $reflectionProperty = null;
+
+    public function __construct(
+        /** @psalm-var non-empty-string $name */
+        public readonly string $name,
+        public readonly string $type,
+        public readonly bool $hasDefaultValue,
+        public readonly mixed $defaultValue,
+        public readonly bool $isNullable,
+        public readonly bool $isReadOnly,
+        public readonly bool $isConstructorPromoted,
+    ) {}
+
+    /**
+     * @param mixed $dbValue value from your database
+     * @return mixed value for your Entity, null if impossible to cast
+     */
+    abstract public function cast(mixed $dbValue): mixed;
+
+    /**
+     * @param mixed $entityValue value from your Entity
+     * @return string|int|float|bool|null value for your database, null if impossible to uncast
+     */
+    abstract public function uncast(mixed $entityValue): string|int|float|bool|null;
+
+    public function isInitialized(AbstractEntity $entity): bool
+    {
+        if ($this->isConstructorPromoted || $this->hasDefaultValue) {
+            return true;
+        }
+        if ($this->reflectionProperty === null) {
+            $this->reflectionProperty = new \ReflectionProperty($entity, $this->name);
+        }
+        return $this->reflectionProperty->isInitialized($entity);
+    }
+}
