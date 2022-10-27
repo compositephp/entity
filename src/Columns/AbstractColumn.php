@@ -12,6 +12,7 @@ abstract class AbstractColumn
         /** @psalm-var non-empty-string $name */
         public readonly string $name,
         public readonly string $type,
+        public readonly array $attributes,
         public readonly bool $hasDefaultValue,
         public readonly mixed $defaultValue,
         public readonly bool $isNullable,
@@ -36,9 +37,19 @@ abstract class AbstractColumn
         if ($this->isConstructorPromoted || $this->hasDefaultValue) {
             return true;
         }
+        return $this->getReflectionProperty($entity)->isInitialized($entity);
+    }
+
+    public function setValue(AbstractEntity $entity, mixed $value): void
+    {
+        $this->getReflectionProperty($entity)->setValue($entity, $value);
+    }
+
+    private function getReflectionProperty(AbstractEntity $entity): \ReflectionProperty
+    {
         if ($this->reflectionProperty === null) {
             $this->reflectionProperty = new \ReflectionProperty($entity, $this->name);
         }
-        return $this->reflectionProperty->isInitialized($entity);
+        return $this->reflectionProperty;
     }
 }

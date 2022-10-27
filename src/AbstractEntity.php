@@ -47,12 +47,7 @@ abstract class AbstractEntity implements \JsonSerializable
                 continue;
             }
             if ($column->isReadOnly) {
-                try {
-                    $reflectionProperty = new \ReflectionProperty($entity, $column->name);
-                    $reflectionProperty->setValue($entity, $preparedData[$column->name]);
-                } catch (\ReflectionException $e) {
-                    throw new EntityException($e->getMessage(), $e);
-                }
+                $column->setValue($entity, $preparedData[$column->name]);
             } else {
                 $entity->{$column->name} = $preparedData[$column->name];
             }

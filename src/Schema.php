@@ -13,7 +13,8 @@ class Schema
     public function __construct(
         /** @psalm-var class-string $class */
         public readonly string $class,
-        public readonly array $columns
+        public readonly array $columns,
+        public readonly array $attributes,
     ) {}
 
     /**
@@ -28,9 +29,14 @@ class Schema
             throw EntityException::fromThrowable($exception);
         }
         $columns = ColumnBuilder::fromReflection($reflection);
+        $attributes = array_map(
+            fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
+            $reflection->getAttributes()
+        );
         return new self(
             class: $class,
             columns: $columns,
+            attributes: $attributes,
         );
     }
 

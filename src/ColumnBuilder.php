@@ -73,10 +73,15 @@ class ColumnBuilder
                 $hasDefaultValue = false;
                 $defaultValue = null;
             }
+            $attributes = array_map(
+                fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
+                $reflectionClass->getAttributes()
+            );
             //see AbstractColumn __constructor
             $result[] = new $columnClass(
                 name: $property->getName(),
                 type: $typeName,
+                attributes: $attributes,
                 hasDefaultValue: $hasDefaultValue,
                 defaultValue: $defaultValue,
                 isNullable: $type->allowsNull(),

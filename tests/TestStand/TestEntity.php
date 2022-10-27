@@ -3,13 +3,10 @@
 namespace Composite\Entity\Tests\TestStand;
 
 use Composite\Entity\AbstractEntity;
-use Composite\Entity\Attributes;
 
-#[Attributes\Table(db: 'sqlite')]
 class TestEntity extends AbstractEntity
 {
     public function __construct(
-        #[Attributes\PrimaryKey]
         public string $str = 'foo',
         public int $int = 999,
         public float $float = 9.99,
