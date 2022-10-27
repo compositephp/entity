@@ -75,7 +75,7 @@ class ColumnBuilder
             }
             $attributes = array_map(
                 fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
-                $reflectionClass->getAttributes()
+                $property->getAttributes()
             );
             //see AbstractColumn __constructor
             $result[] = new $columnClass(
