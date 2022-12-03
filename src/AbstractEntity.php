@@ -8,6 +8,7 @@ abstract class AbstractEntity implements \JsonSerializable
 {
     /** @var Schema[] */
     private static array $_schemas = [];
+    /** @var array<string, mixed>|null  */
     private ?array $_initialColumns = null;
 
     /**
@@ -24,13 +25,12 @@ abstract class AbstractEntity implements \JsonSerializable
 
     /**
      * @param array<string, mixed> $data
-     * @psalm-suppress MoreSpecificReturnType
      * @throws EntityException
      */
     public static function fromArray(array $data = []): static
     {
         $schema = static::schema();
-        $class = $schema->class;
+        $class = static::class;
         $preparedData = $schema->castData($data);
         $constructorData = [];
         foreach ($schema->getConstructorColumns() as $column) {
@@ -40,7 +40,6 @@ abstract class AbstractEntity implements \JsonSerializable
             $constructorData[$column->name] = $preparedData[$column->name];
         }
 
-        /** @var AbstractEntity $entity */
         $entity = $constructorData ? new $class(...$constructorData) : new $class();
         foreach ($schema->getNonConstructorColumns() as $column) {
             if (!isset($preparedData[$column->name])) {
@@ -53,10 +52,13 @@ abstract class AbstractEntity implements \JsonSerializable
             }
         }
         $entity->_initialColumns = $entity->toArray();
-        /** @psalm-suppress LessSpecificReturnStatement */
         return $entity;
     }
 
+    /**
+     * @return array<string, mixed>
+     * @throws EntityException
+     */
     public function toArray(): array
     {
         $result = [];
@@ -74,6 +76,10 @@ abstract class AbstractEntity implements \JsonSerializable
         return $result;
     }
 
+    /**
+     * @return array<string, mixed>
+     * @throws EntityException
+     */
     public function getChangedColumns(): array
     {
         $data = $this->toArray();
@@ -89,6 +95,10 @@ abstract class AbstractEntity implements \JsonSerializable
         return $changed_properties;
     }
 
+    /**
+     * @return array<string, mixed>
+     * @throws EntityException
+     */
     public function jsonSerialize(): array
     {
         return $this->toArray();

@@ -11,6 +11,6 @@ class StringColumn extends AbstractColumn
 
     public function uncast(mixed $entityValue): string
     {
-        return $entityValue;
+        return strval($entityValue);
     }
 }

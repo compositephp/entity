@@ -17,8 +17,11 @@ class EntityColumn extends AbstractColumn
         if ($dbValue instanceof $className) {
             return $dbValue;
         }
+        if (!is_string($dbValue)) {
+            throw new EntityException("Cannot to cast value for column {$this->name}, it must be string.");
+        }
         try {
-            $data = \json_decode($dbValue, true, 512, JSON_THROW_ON_ERROR);
+            $data = (array)\json_decode($dbValue, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new EntityException($e->getMessage(), $e);
         }
@@ -26,7 +29,7 @@ class EntityColumn extends AbstractColumn
     }
 
     /**
-     * @param AbstractEntity|mixed $entityValue
+     * @param AbstractEntity $entityValue
      * @throws EntityException
      */
     public function uncast(mixed $entityValue): string

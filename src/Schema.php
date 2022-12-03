@@ -8,26 +8,22 @@ use Composite\Entity\Exceptions\EntityException;
 class Schema
 {
     /**
-     * @param $columns AbstractColumn[]
+     * @param class-string<AbstractEntity> $class
+     * @param array<AbstractColumn> $columns
+     * @param array<object> $attributes
      */
     public function __construct(
-        /** @psalm-var class-string $class */
         public readonly string $class,
         public readonly array $columns,
         public readonly array $attributes,
     ) {}
 
     /**
-     * @psalm-param class-string $class
-     * @throws EntityException
+     * @param class-string<AbstractEntity> $class
      */
     public static function build(string $class): self
     {
-        try {
-            $reflection = new \ReflectionClass($class);
-        } catch (\ReflectionException $exception) {
-            throw EntityException::fromThrowable($exception);
-        }
+        $reflection = new \ReflectionClass($class);
         $columns = ColumnBuilder::fromReflection($reflection);
         $attributes = array_map(
             fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
@@ -41,14 +37,14 @@ class Schema
     }
 
     /**
-     * @param array $data
-     * @return array
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      * @throws EntityException
      */
     public function castData(array $data): array
     {
         foreach ($this->columns as $column) {
-            if (!isset($data[$column->name])) {
+            if (!array_key_exists($column->name, $data)) {
                 continue;
             }
             $value = $data[$column->name];

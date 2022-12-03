@@ -8,8 +8,10 @@ abstract class AbstractColumn
 {
     private ?\ReflectionProperty $reflectionProperty = null;
 
+    /**
+     * @param array<string, object> $attributes
+     */
     public function __construct(
-        /** @psalm-var non-empty-string $name */
         public readonly string $name,
         public readonly string $type,
         public readonly array $attributes,

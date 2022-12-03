@@ -7,6 +7,7 @@ use Composite\Entity\Exceptions\EntityException;
 
 class ColumnBuilder
 {
+    /** @var array<string, class-string<Columns\AbstractColumn>> */
     private const PRIMITIVE_COLUMN_MAP = [
         'array' => Columns\ArrayColumn::class,
         'bool' => Columns\BoolColumn::class,
@@ -19,9 +20,9 @@ class ColumnBuilder
     ];
 
     /**
+     * @param \ReflectionClass<AbstractEntity> $reflectionClass
      * @return Columns\AbstractColumn[]
      * @throws EntityException
-     * @psalm-suppress MoreSpecificReturnType
      */
     public static function fromReflection(\ReflectionClass $reflectionClass): array
     {
@@ -41,26 +42,41 @@ class ColumnBuilder
             if (!$type instanceof \ReflectionNamedType) {
                 throw new EntityException("Property `{$property->name}` must have named type");
             }
-            $typeName = $type->getName();
-            /** @psalm-var class-string<Columns\AbstractColumn>|null $columnClass */
-            $columnClass = self::PRIMITIVE_COLUMN_MAP[$typeName] ?? null;
-
-            if (!$columnClass && class_exists($typeName)) {
-                if (is_subclass_of($typeName, AbstractEntity::class)) {
-                    $columnClass = Columns\EntityColumn::class;
-                } elseif (is_subclass_of($typeName, \BackedEnum::class)) {
-                    $columnClass = Columns\BackedEnumColumn::class;
-                } elseif (is_subclass_of($typeName, \UnitEnum::class)) {
-                    $columnClass = Columns\UnitEnumColumn::class;
-                } else {
-                    if (in_array(CastableInterface::class, class_implements($typeName))) {
-                        $columnClass = Columns\CastableColumn::class;
-                    }
-                }
+            /** @var array<class-string, object> $propertyAttributes */
+            $propertyAttributes = [];
+            foreach ($property->getAttributes() as $attribute) {
+                $attributeInstance = $attribute->newInstance();
+                $propertyAttributes[$attributeInstance::class] = $attributeInstance;
             }
 
-            if (!$columnClass) {
-                throw new EntityException("Type `{$property->getType()}` is not supported");
+            if (isset($propertyAttributes[Attributes\ListOf::class])) {
+                if ($type->getName() !== 'array') {
+                    throw new EntityException("Property `{$property->name}` has ListOf attribute and must have array type.");
+                }
+                $columnClass = Columns\EntityListColumn::class;
+                /** @var Attributes\ListOf $listOfAttribute */
+                $listOfAttribute = $propertyAttributes[Attributes\ListOf::class];
+                $typeName = $listOfAttribute->class;
+            } else {
+                $typeName = $type->getName();
+                $columnClass = self::PRIMITIVE_COLUMN_MAP[$typeName] ?? null;
+
+                if (!$columnClass && class_exists($typeName)) {
+                    if (is_subclass_of($typeName, AbstractEntity::class)) {
+                        $columnClass = Columns\EntityColumn::class;
+                    } elseif (is_subclass_of($typeName, \BackedEnum::class)) {
+                        $columnClass = Columns\BackedEnumColumn::class;
+                    } elseif (is_subclass_of($typeName, \UnitEnum::class)) {
+                        $columnClass = Columns\UnitEnumColumn::class;
+                    } else {
+                        if (in_array(CastableInterface::class, class_implements($typeName) ?: [])) {
+                            $columnClass = Columns\CastableColumn::class;
+                        }
+                    }
+                }
+                if (!$columnClass) {
+                    throw new EntityException("Type `{$property->getType()}` is not supported");
+                }
             }
 
             if (isset($constructorDefaultValues[$property->name])) {
@@ -73,15 +89,10 @@ class ColumnBuilder
                 $hasDefaultValue = false;
                 $defaultValue = null;
             }
-            $attributes = array_map(
-                fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
-                $property->getAttributes()
-            );
-            //see AbstractColumn __constructor
             $result[] = new $columnClass(
                 name: $property->getName(),
                 type: $typeName,
-                attributes: $attributes,
+                attributes: $propertyAttributes,
                 hasDefaultValue: $hasDefaultValue,
                 defaultValue: $defaultValue,
                 isNullable: $type->allowsNull(),
@@ -89,7 +100,6 @@ class ColumnBuilder
                 isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
             );
         }
-        /** @psalm-suppress LessSpecificReturnStatement */
         return $result;
     }
 }

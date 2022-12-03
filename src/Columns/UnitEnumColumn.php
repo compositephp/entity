@@ -11,11 +11,12 @@ class UnitEnumColumn extends AbstractColumn
      */
     public function cast(mixed $dbValue): \UnitEnum
     {
-        /** @var \UnitEnum $enumClass */
+        /** @var class-string<\UnitEnum> $enumClass */
         $enumClass = $this->type;
         if ($dbValue instanceof $enumClass) {
             return $dbValue;
         }
+        $dbValue = strval($dbValue);
         foreach ($enumClass::cases() as $enum) {
             if ($enum->name === $dbValue) {
                 return $enum;
@@ -25,7 +26,7 @@ class UnitEnumColumn extends AbstractColumn
     }
 
     /**
-     * @param \UnitEnum|mixed $entityValue
+     * @param \UnitEnum $entityValue
      */
     public function uncast(mixed $entityValue): string
     {

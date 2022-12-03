@@ -11,6 +11,6 @@ class FloatColumn extends AbstractColumn
 
     public function uncast(mixed $entityValue): float
     {
-        return $entityValue;
+        return floatval($entityValue);
     }
 }

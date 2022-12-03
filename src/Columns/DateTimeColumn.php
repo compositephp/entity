@@ -14,7 +14,7 @@ class DateTimeColumn extends AbstractColumn
         if (DateTimeHelper::isDefault($dbValue)) {
             return null;
         }
-        /** @psalm-var class-string<\DateTimeInterface> $class */
+        /** @var class-string<\DateTimeInterface> $class */
         $class = $this->type;
         if (is_string($dbValue)) {
             return new $class($dbValue);
@@ -26,7 +26,7 @@ class DateTimeColumn extends AbstractColumn
     }
 
     /**
-     * @param \DateTimeInterface|mixed $entityValue
+     * @param \DateTimeInterface $entityValue
      */
     public function uncast(mixed $entityValue): ?string
     {

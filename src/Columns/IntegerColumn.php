@@ -11,6 +11,6 @@ class IntegerColumn extends AbstractColumn
 
     public function uncast(mixed $entityValue): int
     {
-        return $entityValue;
+        return intval($entityValue);
     }
 }

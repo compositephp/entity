@@ -7,6 +7,7 @@ use Composite\Entity\Exceptions\EntityException;
 class ArrayColumn extends AbstractColumn
 {
     /**
+     * @return array<array-key, mixed>
      * @throws EntityException
      */
     public function cast(mixed $dbValue): array
@@ -15,7 +16,7 @@ class ArrayColumn extends AbstractColumn
             return $dbValue;
         }
         try {
-            return \json_decode($dbValue, true, 512, JSON_THROW_ON_ERROR);
+            return (array)\json_decode(strval($dbValue), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new EntityException($e->getMessage(), $e);
         }

@@ -14,7 +14,7 @@ class CastableColumn extends AbstractColumn
     }
 
     /**
-     * @param CastableInterface|mixed $entityValue
+     * @param CastableInterface $entityValue
      */
     public function uncast(mixed $entityValue): int|string|null
     {
