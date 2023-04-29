@@ -65,7 +65,14 @@ class ColumnBuilder
                     if (is_subclass_of($typeName, AbstractEntity::class)) {
                         $columnClass = Columns\EntityColumn::class;
                     } elseif (is_subclass_of($typeName, \BackedEnum::class)) {
-                        $columnClass = Columns\BackedEnumColumn::class;
+                        $reflectionEnum = new \ReflectionEnum($typeName);
+                        /** @var \ReflectionNamedType $backingType */
+                        $backingType = $reflectionEnum->getBackingType();
+                        if ($backingType->getName() === 'int') {
+                            $columnClass = Columns\BackedIntEnumColumn::class;
+                        } else {
+                            $columnClass = Columns\BackedStringEnumColumn::class;
+                        }
                     } elseif (is_subclass_of($typeName, \UnitEnum::class)) {
                         $columnClass = Columns\UnitEnumColumn::class;
                     } else {

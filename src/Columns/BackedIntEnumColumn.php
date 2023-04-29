@@ -4,7 +4,7 @@ namespace Composite\Entity\Columns;
 
 use Composite\Entity\Exceptions\EntityException;
 
-class BackedEnumColumn extends AbstractColumn
+class BackedIntEnumColumn extends AbstractColumn
 {
     /**
      * @throws EntityException
@@ -16,18 +16,16 @@ class BackedEnumColumn extends AbstractColumn
         if ($dbValue instanceof $enumClass) {
             return $dbValue;
         }
-        if (is_numeric($dbValue)) {
-            $dbValue = intval($dbValue);
-        } elseif (!is_string($dbValue)) {
-            throw new EntityException("Cannot to cast value for column {$this->name} and enum `$enumClass`, it must be string or integer.");
+        if (!is_numeric($dbValue)) {
+            throw new EntityException("Cannot to cast value for column {$this->name} and enum `$enumClass`, it must be integer.");
         }
-        return $enumClass::from($dbValue);
+        return $enumClass::from((int)$dbValue);
     }
 
     /**
      * @param \BackedEnum $entityValue
      */
-    public function uncast(mixed $entityValue): int|string
+    public function uncast(mixed $entityValue): int
     {
         return $entityValue->value;
     }
