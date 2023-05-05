@@ -86,7 +86,7 @@ class ColumnBuilder
                 }
             }
 
-            if (isset($constructorDefaultValues[$property->name])) {
+            if (array_key_exists($property->name, $constructorDefaultValues)) {
                 $hasDefaultValue = true;
                 $defaultValue = $constructorDefaultValues[$property->name];
             } elseif ($property->hasDefaultValue()) {
