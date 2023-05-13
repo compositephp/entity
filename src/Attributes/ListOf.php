@@ -2,7 +2,7 @@
 
 namespace Composite\Entity\Attributes;
 
-#[\Attribute]
+#[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
 class ListOf
 {
     public function __construct(
