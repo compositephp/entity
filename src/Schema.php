@@ -92,4 +92,14 @@ class Schema
     {
         return array_filter($this->columns, fn(AbstractColumn $column) => !$column->isConstructorPromoted);
     }
+
+    /**
+     * @template T
+     * @param class-string<T> $class
+     * @return T|null
+     */
+    public function getFirstAttributeByClass(string $class): ?object
+    {
+        return current(array_filter($this->attributes, fn($attribute) => $attribute instanceof $class)) ?: null;
+    }
 }

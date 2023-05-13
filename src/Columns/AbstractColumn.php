@@ -47,6 +47,16 @@ abstract class AbstractColumn
         $this->getReflectionProperty($entity)->setValue($entity, $value);
     }
 
+    /**
+     * @template T
+     * @param class-string<T> $class
+     * @return T|null
+     */
+    public function getFirstAttributeByClass(string $class): ?object
+    {
+        return current(array_filter($this->attributes, fn($attribute) => $attribute instanceof $class)) ?: null;
+    }
+
     private function getReflectionProperty(AbstractEntity $entity): \ReflectionProperty
     {
         if ($this->reflectionProperty === null) {
