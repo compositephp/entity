@@ -1,7 +1,9 @@
 # Composite Entity
 
-Composite Entity is lightweight and smart PHP 8.1+ Entity class with automatic Data Mapping and serialization. Very 
-useful to work with database rows, just hydrate associative array into strict typed object and make your IDE happy.
+Composite Entity is a lightweight and intelligent PHP 8.1+ class that shines in its ability to be serialized and deserialized from an array. 
+This smart feature makes it extremely useful when managing data from databases. 
+
+It efficiently converts database rows into a strictly typed object and back into an array, enhancing your workflow and making your interaction with databases much smoother and more productive.
 
 Overview:
 * [Requirements](#requirements)
@@ -22,8 +24,7 @@ Install package via composer:
 
 ## Supported column types:
 
-Composite entity can automatically serialize and deserialize back almost all data types you may need:
-
+Composite Entity has the capability to automatically serialize and deserialize nearly all data types you might require.
 - String
 - Integer
 - Float
@@ -100,8 +101,7 @@ $user = User::fromArray([
 ]);
 ```
 
-And that's it, no special getters or setters, no "behaviours" or extra code, Composite Entity casts everything 
-automatically.
+And that's it, no special getters or setters, no "behaviours" or extra code, Composite Entity casts everything automatically.
 
 ## License:
 
