@@ -46,6 +46,9 @@ class ColumnBuilder
             $propertyAttributes = [];
             foreach ($property->getAttributes() as $attribute) {
                 $attributeInstance = $attribute->newInstance();
+                if ($attributeInstance instanceof Attributes\SkipSerialization) {
+                    continue 2;
+                }
                 $propertyAttributes[$attributeInstance::class] = $attributeInstance;
             }
 

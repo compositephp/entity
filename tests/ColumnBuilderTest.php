@@ -3,6 +3,7 @@
 namespace Composite\Entity\Tests;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Attributes\SkipSerialization;
 use Composite\Entity\Columns\AbstractColumn;
 
 final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
@@ -24,6 +25,26 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
                     ) {}
                 },
                 'expected' => ['pub1', 'prot1', 'pub2', 'prot2']
+            ],
+            [
+                'entity' => new class extends AbstractEntity {
+                    public int $var4 = 4;
+                    #[SkipSerialization]
+                    public int $var5 = 5;
+                    protected int $var6 = 6;
+                    #[SkipSerialization]
+                    protected int $var7 = 7;
+                    private int $var8 = 8;
+
+                    public function __construct(
+                        public int $var1 = 1,
+                        #[SkipSerialization]
+                        public int $var2 = 2,
+                        #[SkipSerialization]
+                        protected int $var3 = 3,
+                    ) {}
+                },
+                'expected' => ['var1', 'var4', 'var6',]
             ],
         ];
     }
