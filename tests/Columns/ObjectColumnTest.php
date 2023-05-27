@@ -3,6 +3,7 @@
 namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Exceptions\EntityException;
 
 final class ObjectColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -106,5 +107,23 @@ final class ObjectColumnTest extends \PHPUnit\Framework\TestCase
             $newEntity->column ? \json_encode($newEntity->column) : $newEntity->column
         );
         $this->assertSame($expected, $newActual);
+    }
+
+    public function test_exception(): void
+    {
+        $object = new \stdClass();
+        $object->f = INF;
+
+        $entity = new class($object) extends AbstractEntity {
+            public function __construct(
+                public \stdClass $column,
+            ) {}
+        };
+        try {
+            $entity->toArray();
+            $this->assertTrue(false);
+        } catch (EntityException) {
+            $this->assertTrue(true);
+        }
     }
 }

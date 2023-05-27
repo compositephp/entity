@@ -14,11 +14,8 @@ class ObjectColumn extends AbstractColumn
         if ($dbValue instanceof \stdClass) {
             return $dbValue;
         }
-        if (!is_string($dbValue)) {
-            throw new EntityException("Cannot to cast value for column {$this->name}, it must be string.");
-        }
         try {
-            $decoded = \json_decode($dbValue, false, 512, JSON_THROW_ON_ERROR);
+            $decoded = \json_decode(strval($dbValue), false, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new EntityException($e->getMessage(), $e);
         }

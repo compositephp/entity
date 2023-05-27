@@ -57,6 +57,16 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
                 'dateTime' => new \DateTime('2000-01-01 00:00:00'),
                 'dateTimeImmutable' => new \DateTimeImmutable('2000-01-01 00:00:00'),
             ],
+            [
+                'value' => new \DateTime('2000-01-01 00:00:00'),
+                'dateTime' => new \DateTime('2000-01-01 00:00:00'),
+                'dateTimeImmutable' => null,
+            ],
+            [
+                'value' => new \DateTimeImmutable('2000-01-01 00:00:00'),
+                'dateTime' => null,
+                'dateTimeImmutable' => new \DateTimeImmutable('2000-01-01 00:00:00'),
+            ],
         ];
     }
 

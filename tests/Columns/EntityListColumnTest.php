@@ -4,6 +4,8 @@ namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
 use Composite\Entity\Attributes\ListOf;
+use Composite\Entity\Exceptions\EntityException;
+use Composite\Entity\Tests\TestStand\TestEntity;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
@@ -107,5 +109,56 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         $newActual = $newEntity->toArray()['column'];
         $this->assertEquals($entity->column, $newEntity->column);
         $this->assertEquals($expected, $newActual);
+    }
+
+
+    public function test_castException(): void
+    {
+        $entity = new class([]) extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class)]
+                public array $column,
+            ) {}
+        };
+        try {
+            $entity::fromArray(['column' => false]);
+            $this->assertTrue(false);
+        } catch (EntityException) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function test_uncastException(): void
+    {
+        $sub = new TestEntity(float: INF);
+
+        $entity = new class([$sub]) extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class)]
+                public array $column,
+            ) {}
+        };
+        try {
+            $entity->toArray();
+            $this->assertTrue(false);
+        } catch (EntityException) {
+            $this->assertTrue(true);
+        }
+    }
+
+
+    public function test_exception(): void
+    {
+        $entity = new class(new TestEntity(float: INF)) extends AbstractEntity {
+            public function __construct(
+                public TestEntity $column,
+            ) {}
+        };
+        try {
+            $entity->toArray();
+            $this->assertTrue(false);
+        } catch (EntityException) {
+            $this->assertTrue(true);
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Exceptions\EntityException;
 
 final class ArrayColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -97,5 +98,20 @@ final class ArrayColumnTest extends \PHPUnit\Framework\TestCase
         $newActual = $newEntity->toArray()['column'];
         $this->assertSame($entity->column, $newEntity->column);
         $this->assertSame($expected, $newActual);
+    }
+
+    public function test_exception(): void
+    {
+        $entity = new class([INF]) extends AbstractEntity {
+            public function __construct(
+                public array $column,
+            ) {}
+        };
+        try {
+            $entity->toArray();
+            $this->assertTrue(false);
+        } catch (EntityException) {
+            $this->assertTrue(true);
+        }
     }
 }

@@ -83,7 +83,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         $actual = $entity->toArray();
         $this->assertSame($expected, $actual);
 
-        $cloneEntity = $entity::fromArray($actual);
+        $cloneEntity = $entity::fromArray($actual + ['random_field' => mt_rand(0, 1000)]);
         $this->assertSame($entity->toArray(), $cloneEntity->toArray());
     }
 
