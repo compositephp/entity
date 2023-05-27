@@ -13,9 +13,4 @@ class EntityException extends \Exception
     {
         return new EntityException('', $throwable);
     }
-
-    public static function tableNotFound(string $entityClass): EntityException
-    {
-        return new EntityException("Table attribute not defined in entity `$entityClass`");
-    }
 }

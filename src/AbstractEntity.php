@@ -42,7 +42,7 @@ abstract class AbstractEntity implements \JsonSerializable
 
         $entity = $constructorData ? new $class(...$constructorData) : new $class();
         foreach ($schema->getNonConstructorColumns() as $column) {
-            if (!isset($preparedData[$column->name])) {
+            if (!array_key_exists($column->name, $preparedData)) {
                 continue;
             }
             if ($column->isReadOnly) {
