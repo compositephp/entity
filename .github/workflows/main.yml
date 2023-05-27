@@ -36,4 +36,8 @@ jobs:
       run: vendor/bin/phpunit tests --colors=always
       
     - name: Upload coverage reports to Codecov
+      continue-on-error: true
       uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.clover
