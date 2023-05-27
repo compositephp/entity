@@ -1,4 +1,7 @@
 .idea
 .phpunit.result.cache
+.phpunit.cache
+clover.xml
+clover.json
 vendor/
 composer.lock
