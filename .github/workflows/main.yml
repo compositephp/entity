@@ -34,6 +34,8 @@ jobs:
 
     - name: Execute Tests
       run: vendor/bin/phpunit tests --colors=always --coverage-clover=coverage.clover
+      env:
+        XDEBUG_MODE: coverage
       
     - name: Upload coverage reports to Codecov
       continue-on-error: true
