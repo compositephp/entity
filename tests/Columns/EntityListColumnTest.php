@@ -63,6 +63,10 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         };
         $entity = $class::fromArray(['column' => $value]);
         $this->assertEquals($expected, $entity->column);
+
+        $attribute = $entity::schema()->getColumn('column')->getFirstAttributeByClass(ListOf::class);
+        $this->assertNotNull($attribute);
+        $this->assertInstanceOf(ListOf::class, $attribute);
     }
 
     public function uncast_dataProvider(): array

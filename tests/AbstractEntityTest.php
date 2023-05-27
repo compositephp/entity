@@ -82,6 +82,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
     {
         $actual = $entity->toArray();
         $this->assertSame($expected, $actual);
+
         $cloneEntity = $entity::fromArray($actual);
         $this->assertSame($entity->toArray(), $cloneEntity->toArray());
     }
@@ -171,5 +172,22 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($entity->isNew());
         $this->assertSame([], $entity->getChangedColumns());
+    }
+
+    public function test_notInitialized(): void
+    {
+        $entity = new class extends AbstractEntity {
+            public readonly int $id;
+
+            public function __construct(
+                public string $str1 = 'foo',
+            ) {
+            }
+        };
+        $this->assertEquals(['str1' => 'foo'], $entity->toArray());
+
+        $dataArray = ['id' => 123, 'str1' => 'bar'];
+        $loadedEntity = $entity::fromArray($dataArray);
+        $this->assertEquals($dataArray, $loadedEntity->toArray());
     }
 }
