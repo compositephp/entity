@@ -56,7 +56,7 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(TestBackedIntEnum::FooInt, $loaded->var1);
         $this->assertSame(TestBackedIntEnum::BarInt, $loaded->var2);
 
-        $loaded = $class::fromArray(['var1' => '123', 'var2' => 'no']);
+        $loaded = $class::fromArray(['var1' => '123', 'var2' => 'no', 'random' => '123123']);
         $this->assertSame(TestBackedIntEnum::FooInt, $loaded->var1);
         $this->assertSame(null, $loaded->var2);
 
@@ -73,5 +73,14 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
         $attribute = TesEntityWithAttribute::schema()->getFirstAttributeByClass(TestAttribute::class);
         $this->assertNotNull($attribute);
         $this->assertEquals(2, $attribute->val);
+    }
+
+    public function test_getColumn(): void
+    {
+        $column = TesEntityWithAttribute::schema()->getColumn('not_existing');
+        $this->assertNull($column);
+
+        $column = TesEntityWithAttribute::schema()->getColumn('str');
+        $this->assertEquals('str', $column->name);
     }
 }

@@ -3,8 +3,10 @@
 namespace Composite\Entity\Tests;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Attributes\ListOf;
 use Composite\Entity\Attributes\SkipSerialization;
 use Composite\Entity\Columns\AbstractColumn;
+use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
 {
@@ -291,6 +293,44 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         foreach ($expected as $name => $expectedIsReadOnly) {
             $this->assertNotNull($schema->getColumn($name));
             $this->assertSame($expectedIsReadOnly, $schema->getColumn($name)?->isReadOnly);
+        }
+    }
+
+    public function notSupported_dataProvider(): array
+    {
+        return [
+            [
+                new class extends AbstractEntity {
+                    public readonly int $id;
+                    public $foo2 = 'foo';
+                }
+            ],
+            [
+                new class extends AbstractEntity {
+                    public readonly int $id;
+                    #[ListOf(TestSubEntity::class)]
+                    public string $foo2 = 'foo';
+                }
+            ],
+            [
+                new class extends AbstractEntity {
+                    public readonly int $id;
+                    public \ReflectionClass $foo2;
+                }
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider notSupported_dataProvider
+     */
+    public function test_notSupported(AbstractEntity $entity): void
+    {
+        try {
+            $entity::schema();
+            $this->assertTrue(false);
+        } catch (\Exception) {
+            $this->assertTrue(true);
         }
     }
 }

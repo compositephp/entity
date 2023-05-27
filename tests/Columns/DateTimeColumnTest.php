@@ -57,16 +57,6 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
                 'dateTime' => new \DateTime('2000-01-01 00:00:00'),
                 'dateTimeImmutable' => new \DateTimeImmutable('2000-01-01 00:00:00'),
             ],
-            [
-                'value' => strtotime('2000-01-01 00:00:01'),
-                'dateTime' => new \DateTime('2000-01-01 00:00:01'),
-                'dateTimeImmutable' => new \DateTimeImmutable('2000-01-01 00:00:01'),
-            ],
-            [
-                'value' => (string)strtotime('2000-01-01 00:00:02'),
-                'dateTime' => new \DateTime('2000-01-01 00:00:02'),
-                'dateTimeImmutable' => new \DateTimeImmutable('2000-01-01 00:00:02'),
-            ],
         ];
     }
 
@@ -81,9 +71,9 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
                 public ?\DateTimeImmutable $date_time_immutable = null,
             ) {}
         };
-        $entity = $class::fromArray(['date_time' => $dateTime, 'date_time_immutable' => $dateTimeImmutable]);
-        $this->assertSame($dateTime, $entity->date_time);
-        $this->assertSame($dateTimeImmutable, $entity->date_time_immutable);
+        $entity = $class::fromArray(['date_time' => $value, 'date_time_immutable' => $value]);
+        $this->assertEquals($dateTime, $entity->date_time);
+        $this->assertEquals($dateTimeImmutable, $entity->date_time_immutable);
     }
 
     public function uncast_dataProvider(): array
