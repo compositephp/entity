@@ -1,4 +1,5 @@
 # Composite Entity
+[![Codecov](https://codecov.io/gh/compositephp/entity/branch/master/graph/badge.svg)](https://codecov.io/gh/compositephp/entity/)
 
 Composite Entity is a lightweight and intelligent PHP 8.1+ class that shines in its ability to be serialized and deserialized from an array. 
 This smart feature makes it extremely useful when managing data from databases. 
