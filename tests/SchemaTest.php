@@ -49,8 +49,9 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
         $class = new class extends AbstractEntity {
             public TestBackedIntEnum $var1;
             public ?TestBackedIntEnum $var2;
+            public ?TestBackedIntEnum $var3 = TestBackedIntEnum::BarInt;
         };
-        $this->assertEquals([], $class->toArray());
+        $this->assertEquals(['var3' => TestBackedIntEnum::BarInt->value], $class->toArray());
 
         $loaded = $class::fromArray(['var1' => TestBackedIntEnum::FooInt->value, 'var2' => TestBackedIntEnum::BarInt->value]);
         $this->assertSame(TestBackedIntEnum::FooInt, $loaded->var1);

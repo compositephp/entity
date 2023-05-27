@@ -49,6 +49,15 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
                     TestSubEntity::fromArray(['str' => 'Snow', 'number' => 0]),
                 ],
             ],
+            [
+                'value' => [
+                    TestSubEntity::fromArray(['str' => 'John', 'number' => 1]),
+                    12321
+                ],
+                'expected' => [
+                    TestSubEntity::fromArray(['str' => 'John', 'number' => 1]),
+                ],
+            ],
         ];
     }
 
