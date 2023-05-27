@@ -33,7 +33,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Execute Tests
-      run: vendor/bin/phpunit tests --colors=always
+      run: vendor/bin/phpunit tests --colors=always --coverage-clover=coverage.clover
       
     - name: Upload coverage reports to Codecov
       continue-on-error: true
