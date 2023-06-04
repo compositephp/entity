@@ -7,7 +7,7 @@ use Composite\Entity\Tests\TestStand\TestCastableIntObject;
 
 final class CastableColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         $date = '2020-01-01 01:02:03';
         $unixTime = strtotime($date);
@@ -49,7 +49,7 @@ final class CastableColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expected?->format('Uu'), $entity->column?->format('Uu'));
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $date = '2020-01-01 01:02:03';
         $unixTime = strtotime($date);

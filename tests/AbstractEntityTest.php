@@ -7,7 +7,7 @@ use Composite\Entity\Helpers\DateTimeHelper;
 
 final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
 {
-    public function hydration_dataProvider(): array
+    public static function hydration_dataProvider(): array
     {
         $object = new \stdClass();
         $object->foo = 'bar';
@@ -87,7 +87,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($entity->toArray(), $cloneEntity->toArray());
     }
 
-    public function changedColumns_dataProvider(): array
+    public static function changedColumns_dataProvider(): array
     {
         return [
             [

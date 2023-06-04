@@ -7,7 +7,7 @@ use Composite\Entity\Exceptions\EntityException;
 
 final class ObjectColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         $object = new \stdClass();
         $object->foo = 'bar';
@@ -65,7 +65,7 @@ final class ObjectColumnTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $object = new \stdClass();
         $object->foo = 'bar';

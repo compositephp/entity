@@ -11,16 +11,10 @@ abstract class AbstractEntity implements \JsonSerializable
     /** @var array<string, mixed>|null  */
     private ?array $_initialColumns = null;
 
-    /**
-     * @throws EntityException
-     */
     public static function schema(): Schema
     {
         $class = static::class;
-        if (!isset(self::$_schemas[$class])) {
-            self::$_schemas[$class] = Schema::build($class);
-        }
-        return self::$_schemas[$class];
+        return self::$_schemas[$class] ?? (self::$_schemas[$class] = Schema::build($class));
     }
 
     /**
@@ -30,19 +24,20 @@ abstract class AbstractEntity implements \JsonSerializable
     public static function fromArray(array $data = []): static
     {
         $schema = static::schema();
-        $class = static::class;
+        $class = $schema->class;
         $preparedData = $schema->castData($data);
         $constructorData = [];
-        foreach ($schema->getConstructorColumns() as $column) {
-            if (!array_key_exists($column->name, $preparedData)) {
+
+        foreach ($schema->getConstructorColumnNames() as $columnName) {
+            if (!array_key_exists($columnName, $preparedData)) {
                 continue;
             }
-            $constructorData[$column->name] = $preparedData[$column->name];
+            $constructorData[$columnName] = $preparedData[$columnName];
         }
 
         $entity = $constructorData ? new $class(...$constructorData) : new $class();
-        foreach ($schema->getNonConstructorColumns() as $column) {
-            if (!array_key_exists($column->name, $preparedData)) {
+        foreach ($schema->columns as $column) {
+            if ($column->isConstructorPromoted || !array_key_exists($column->name, $preparedData)) {
                 continue;
             }
             if ($column->isReadOnly) {

@@ -99,7 +99,7 @@ class ColumnBuilder
                 $hasDefaultValue = false;
                 $defaultValue = null;
             }
-            $result[] = new $columnClass(
+            $result[$property->getName()] = new $columnClass(
                 name: $property->getName(),
                 type: $typeName,
                 attributes: $propertyAttributes,

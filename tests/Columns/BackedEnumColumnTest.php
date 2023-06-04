@@ -7,7 +7,7 @@ use Composite\Entity\Tests\TestStand\TestBackedStringEnum;
 
 final class BackedEnumColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         return [
             [
@@ -55,7 +55,7 @@ final class BackedEnumColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expected, $entity->column);
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         return [
             [

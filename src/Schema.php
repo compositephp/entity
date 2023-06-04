@@ -7,6 +7,8 @@ use Composite\Entity\Exceptions\EntityException;
 
 class Schema
 {
+    private readonly array $constructorColumnNames;
+
     /**
      * @param class-string<AbstractEntity> $class
      * @param array<AbstractColumn> $columns
@@ -16,7 +18,15 @@ class Schema
         public readonly string $class,
         public readonly array $columns,
         public readonly array $attributes,
-    ) {}
+    ) {
+        $constructorColumnNames = [];
+        foreach ($this->columns as $column) {
+            if ($column->isConstructorPromoted) {
+                $constructorColumnNames[] = $column->name;
+            }
+        }
+        $this->constructorColumnNames = $constructorColumnNames;
+    }
 
     /**
      * @param class-string<AbstractEntity> $class
@@ -69,28 +79,12 @@ class Schema
 
     public function getColumn(string $name): ?AbstractColumn
     {
-        foreach ($this->columns as $column) {
-            if ($column->name === $name) {
-                return $column;
-            }
-        }
-        return null;
+        return $this->columns[$name] ?? null;
     }
 
-    /**
-     * @return AbstractColumn[]
-     */
-    public function getConstructorColumns(): array
+    public function getConstructorColumnNames(): array
     {
-        return array_filter($this->columns, fn(AbstractColumn $column) => $column->isConstructorPromoted);
-    }
-
-    /**
-     * @return AbstractColumn[]
-     */
-    public function getNonConstructorColumns(): array
-    {
-        return array_filter($this->columns, fn(AbstractColumn $column) => !$column->isConstructorPromoted);
+        return $this->constructorColumnNames;
     }
 
     /**

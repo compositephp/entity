@@ -10,7 +10,7 @@ use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         return [
             [
@@ -80,7 +80,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(ListOf::class, $attribute);
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $sub1 = TestSubEntity::fromArray(['str' => 'foo', 'number' => 123]);
         $sub2 = TestSubEntity::fromArray(['str' => 'bar', 'number' => 456]);

@@ -29,19 +29,7 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
         $schema = Schema::build($class::class);
         $this->assertCount(3, $schema->columns);
         $this->assertSame($class::class, $schema->class);
-        $this->assertSame(
-            [
-                $schema->getColumn('id'),
-            ],
-            array_values($schema->getNonConstructorColumns())
-        );
-        $this->assertSame(
-            [
-                $schema->getColumn('str'),
-                $schema->getColumn('number'),
-            ],
-            array_values($schema->getConstructorColumns())
-        );
+        $this->assertSame(['str', 'number'], $schema->getConstructorColumnNames());
     }
 
     public function test_castData(): void

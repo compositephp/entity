@@ -7,7 +7,7 @@ use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class EntityColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         $entity = new TestSubEntity(str: 'bar', number: PHP_INT_MAX);
         return [
@@ -60,7 +60,7 @@ final class EntityColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expected?->toArray(), $entity->column?->toArray());
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $str = 'bar';
         $entity = new TestSubEntity(str: $str, number: PHP_INT_MAX);

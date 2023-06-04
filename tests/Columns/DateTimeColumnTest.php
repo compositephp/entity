@@ -7,7 +7,7 @@ use Composite\Entity\Helpers\DateTimeHelper;
 
 final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public function cast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         $now = new \DateTime();
         $nowImmutable = new \DateTimeImmutable(DateTimeHelper::dateTimeToString($now));
@@ -86,7 +86,7 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($dateTimeImmutable, $entity->date_time_immutable);
     }
 
-    public function uncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $dateTime = new \DateTimeImmutable();
         return [

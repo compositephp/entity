@@ -10,7 +10,7 @@ use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    public function visibility_dataProvider(): array
+    public static function visibility_dataProvider(): array
     {
         return [
             [
@@ -67,7 +67,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function type_dataProvider(): array
+    public static function type_dataProvider(): array
     {
         return [
             [
@@ -102,7 +102,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function hasDefaultValue_dataProvider(): array
+    public static function hasDefaultValue_dataProvider(): array
     {
         return [
             [
@@ -136,7 +136,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function defaultValue_dataProvider(): array
+    public static function defaultValue_dataProvider(): array
     {
         $entity = new TestStand\TestEntity (
             str: 'str_',
@@ -191,7 +191,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function isNullable_dataProvider(): array
+    public static function isNullable_dataProvider(): array
     {
         return [
             [
@@ -226,7 +226,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function isReadOnly_dataProvider(): array
+    public static function isReadOnly_dataProvider(): array
     {
         return [
             [
@@ -249,7 +249,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function isConstructorPromoted_dataProvider(): array
+    public static function isConstructorPromoted_dataProvider(): array
     {
         return [
             [
@@ -296,7 +296,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function notSupported_dataProvider(): array
+    public static function notSupported_dataProvider(): array
     {
         return [
             [
