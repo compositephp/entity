@@ -26,10 +26,9 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
                 return $this->dt;
             }
         };
-        $schema = Schema::build($class::class);
+        $schema = new Schema($class::class);
         $this->assertCount(3, $schema->columns);
         $this->assertSame($class::class, $schema->class);
-        $this->assertSame(['str', 'number'], $schema->getConstructorColumnNames());
     }
 
     public function test_castData(): void

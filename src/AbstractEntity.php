@@ -14,7 +14,7 @@ abstract class AbstractEntity implements \JsonSerializable
     public static function schema(): Schema
     {
         $class = static::class;
-        return self::$_schemas[$class] ?? (self::$_schemas[$class] = Schema::build($class));
+        return self::$_schemas[$class] ?? (self::$_schemas[$class] = new Schema($class));
     }
 
     /**
@@ -24,48 +24,78 @@ abstract class AbstractEntity implements \JsonSerializable
     public static function fromArray(array $data = []): static
     {
         $schema = static::schema();
+        if ($schema->hydrator) {
+            return $schema->hydrator->fromArray($data);
+        }
+
         $class = $schema->class;
-        $preparedData = $schema->castData($data);
-        $constructorData = [];
+        $constructorData = $otherData = [];
 
-        foreach ($schema->getConstructorColumnNames() as $columnName) {
-            if (!array_key_exists($columnName, $preparedData)) {
+        foreach ($schema->columns as $columnName => $column) {
+            if (!array_key_exists($columnName, $data)) {
                 continue;
             }
-            $constructorData[$columnName] = $preparedData[$columnName];
-        }
-
-        $entity = $constructorData ? new $class(...$constructorData) : new $class();
-        foreach ($schema->columns as $column) {
-            if ($column->isConstructorPromoted || !array_key_exists($column->name, $preparedData)) {
-                continue;
+            $value = $data[$columnName];
+            if ($value !== null || !$column->isNullable) {
+                try {
+                    $value = $column->cast($value);
+                } catch (\Throwable $throwable) {
+                    if ($column->hasDefaultValue) {
+                        continue;
+                    } elseif ($column->isNullable) {
+                        $value = null;
+                    } else {
+                        throw EntityException::fromThrowable($throwable);
+                    }
+                }
             }
-            if ($column->isReadOnly) {
-                $column->setValue($entity, $preparedData[$column->name]);
+            if ($column->isConstructorPromoted) {
+                $constructorData[$columnName] = $value;
             } else {
-                $entity->{$column->name} = $preparedData[$column->name];
+                $otherData[$columnName] = $value;
             }
         }
-        $entity->_initialColumns = $entity->toArray();
+        /** @var AbstractEntity $entity */
+        $entity = $constructorData ? new $class(...$constructorData) : new $class();
+
+        $entity->_initialColumns = [];
+        foreach ($schema->columns as $columnName => $column) {
+            if (array_key_exists($columnName, $otherData)) {
+                if ($column->isReadOnly) {
+                    $column->setValue($entity, $otherData[$columnName]);
+                } else {
+                    $entity->{$columnName} = $otherData[$columnName];
+                }
+            }
+            $columnValue = $entity->{$columnName};
+            if ($columnValue === null && $column->isNullable) {
+                $entity->_initialColumns[$columnName] = null;
+            } else {
+                $entity->_initialColumns[$columnName] = $column->uncast($columnValue);
+            }
+        }
         return $entity;
     }
 
     /**
      * @return array<string, mixed>
-     * @throws EntityException
      */
     public function toArray(): array
     {
+        $schema = static::schema();
+        if ($schema->hydrator) {
+            return $schema->hydrator->toArray($this);
+        }
         $result = [];
-        foreach (static::schema()->columns as $column) {
+        foreach ($schema->columns as $columnName => $column) {
             if ($this->isNew() && !$column->isInitialized($this)) {
                 continue;
             }
-            $value = $this->{$column->name};
+            $value = $this->{$columnName};
             if ($value === null && $column->isNullable) {
-                $result[$column->name] = null;
+                $result[$columnName] = null;
             } else {
-                $result[$column->name] = $column->uncast($value);
+                $result[$columnName] = $column->uncast($value);
             }
         }
         return $result;
@@ -81,18 +111,17 @@ abstract class AbstractEntity implements \JsonSerializable
         if ($this->_initialColumns === null) {
             return $data;
         }
-        $changed_properties = [];
+        $changedProperties = [];
         foreach ($data as $key => $value) {
             if (!array_key_exists($key, $this->_initialColumns) || $value !== $this->_initialColumns[$key]) {
-                $changed_properties[$key] = $value;
+                $changedProperties[$key] = $value;
             }
         }
-        return $changed_properties;
+        return $changedProperties;
     }
 
     /**
      * @return array<string, mixed>
-     * @throws EntityException
      */
     public function jsonSerialize(): array
     {

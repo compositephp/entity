@@ -91,13 +91,41 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [
+                [
+                    'id' => 123,
+                    'email' => 'test@email.com',
+                    'name' => 'foo',
+                ],
                 [],
             ],
             [
                 [
-                    'int' => '123456',
-                    'date_time' => '2020-01-01 00:00:01',
+                    'id' => 123,
+                    'email' => 'test@email.com',
+                    'name' => 'foo',
+                    'age' => 18,
                 ],
+                [],
+            ],
+            [
+                [
+                    'id' => 123,
+                    'email' => 'test@email.com',
+                    'name' => 'foo',
+                    'age' => 18,
+                    'is_test' => true,
+                ],
+                [],
+            ],
+            [
+                [
+                    'id' => '123',
+                    'email' => 'test@email.com',
+                    'name' => 'foo',
+                    'age' => null,
+                    'is_test' => false,
+                ],
+                [],
             ],
         ];
     }
@@ -105,12 +133,13 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider changedColumns_dataProvider
      */
-    public function test_changedColumns(array $createData): void
+    public function test_changedColumns(array $createData, array $expectedChangedColumns): void
     {
-        $entity = TestStand\TestEntity::fromArray($createData);
-        $this->assertSame([], $entity->getChangedColumns());
-        $entity->str = 'foo bar';
-        $this->assertSame(['str' => 'foo bar'], $entity->getChangedColumns());
+        $entity = TestStand\TestAutoIncrementEntity::fromArray($createData);
+        $this->assertEquals($expectedChangedColumns, $entity->getChangedColumns());
+        $entity->name = 'bar';
+        $expectedChangedColumns = ['name' => 'bar'] + $expectedChangedColumns;
+        $this->assertEquals($expectedChangedColumns, $entity->getChangedColumns());
         $entity->resetChangedColumns();
         $this->assertSame([], $entity->getChangedColumns());
     }
