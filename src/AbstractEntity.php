@@ -25,7 +25,9 @@ abstract class AbstractEntity implements \JsonSerializable
     {
         $schema = static::schema();
         if ($schema->hydrator) {
-            return $schema->hydrator->fromArray($data);
+             $entity = $schema->hydrator->fromArray($data);
+             $entity->_initialColumns = $schema->hydrator->toArray($entity);
+             return $entity;
         }
 
         $class = $schema->class;
