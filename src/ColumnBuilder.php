@@ -52,14 +52,36 @@ class ColumnBuilder
                 $propertyAttributes[$attributeInstance::class] = $attributeInstance;
             }
 
+            if (array_key_exists($property->name, $constructorDefaultValues)) {
+                $hasDefaultValue = true;
+                $defaultValue = $constructorDefaultValues[$property->name];
+            } elseif ($property->hasDefaultValue()) {
+                $hasDefaultValue = true;
+                $defaultValue = $property->getDefaultValue();
+            } else {
+                $hasDefaultValue = false;
+                $defaultValue = null;
+            }
+
             if (isset($propertyAttributes[Attributes\ListOf::class])) {
                 if ($type->getName() !== 'array') {
                     throw new EntityException("Property `{$property->name}` has ListOf attribute and must have array type.");
                 }
-                $columnClass = Columns\EntityListColumn::class;
                 /** @var Attributes\ListOf $listOfAttribute */
                 $listOfAttribute = $propertyAttributes[Attributes\ListOf::class];
                 $typeName = $listOfAttribute->class;
+
+                $result[$property->getName()] = new Columns\EntityListColumn(
+                    name: $property->getName(),
+                    type: $typeName,
+                    keyColumn: $listOfAttribute->keyColumn,
+                    attributes: $propertyAttributes,
+                    hasDefaultValue: $hasDefaultValue,
+                    defaultValue: $defaultValue,
+                    isNullable: $type->allowsNull(),
+                    isReadOnly: $property->isReadOnly(),
+                    isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
+                );
             } else {
                 $typeName = $type->getName();
                 $columnClass = self::PRIMITIVE_COLUMN_MAP[$typeName] ?? null;
@@ -87,28 +109,17 @@ class ColumnBuilder
                 if (!$columnClass) {
                     throw new EntityException("Type `{$property->getType()}` is not supported");
                 }
+                $result[$property->getName()] = new $columnClass(
+                    name: $property->getName(),
+                    type: $typeName,
+                    attributes: $propertyAttributes,
+                    hasDefaultValue: $hasDefaultValue,
+                    defaultValue: $defaultValue,
+                    isNullable: $type->allowsNull(),
+                    isReadOnly: $property->isReadOnly(),
+                    isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
+                );
             }
-
-            if (array_key_exists($property->name, $constructorDefaultValues)) {
-                $hasDefaultValue = true;
-                $defaultValue = $constructorDefaultValues[$property->name];
-            } elseif ($property->hasDefaultValue()) {
-                $hasDefaultValue = true;
-                $defaultValue = $property->getDefaultValue();
-            } else {
-                $hasDefaultValue = false;
-                $defaultValue = null;
-            }
-            $result[$property->getName()] = new $columnClass(
-                name: $property->getName(),
-                type: $typeName,
-                attributes: $propertyAttributes,
-                hasDefaultValue: $hasDefaultValue,
-                defaultValue: $defaultValue,
-                isNullable: $type->allowsNull(),
-                isReadOnly: $property->isReadOnly(),
-                isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
-            );
         }
         return $result;
     }

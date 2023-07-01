@@ -30,7 +30,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
                 'expected' => []
             ],
             [
-                'value' => '[[],2,3]',
+                'value' => '[null,[],2,3]',
                 'expected' => [
                     TestSubEntity::fromArray([]),
                 ],
@@ -69,6 +69,45 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         $class = new class extends AbstractEntity {
             public function __construct(
                 #[ListOf(TestSubEntity::class)]
+                public ?array $column = null,
+            ) {}
+        };
+        $entity = $class::fromArray(['column' => $value]);
+        $this->assertEquals($expected, $entity->column);
+
+        $attribute = $entity::schema()->getColumn('column')->getFirstAttributeByClass(ListOf::class);
+        $this->assertNotNull($attribute);
+        $this->assertInstanceOf(ListOf::class, $attribute);
+    }
+
+    public static function castWithKey_dataProvider(): array
+    {
+        return [
+            [
+                'value' => '[[],{"str": "John"}]',
+                'expected' => [
+                    'foo' => TestSubEntity::fromArray([]),
+                    'John' => TestSubEntity::fromArray(['str' => 'John']),
+                ],
+            ],
+            [
+                'value' => '[{"str": "John", "number": 1},0,{"str": "Snow", "number": false}]',
+                'expected' => [
+                    'John' => TestSubEntity::fromArray(['str' => 'John', 'number' => 1]),
+                    'Snow' => TestSubEntity::fromArray(['str' => 'Snow', 'number' => 0]),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider castWIthKey_dataProvider
+     */
+    public function test_castWithKey(mixed $value, ?array $expected): void
+    {
+        $class = new class extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestSubEntity::class, 'str')]
                 public ?array $column = null,
             ) {}
         };
@@ -120,6 +159,36 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $newActual);
     }
 
+    public static function uncastWithKey_dataProvider(): array
+    {
+        $sub1 = TestSubEntity::fromArray(['str' => 'foo', 'number' => 123]);
+        $sub2 = TestSubEntity::fromArray(['str' => 'bar', 'number' => 456]);
+        return [
+            [
+                'value' => ['foo' => $sub1, 'bar' => $sub2],
+                'expected' => '{"foo":' . json_encode($sub1) . ',"bar":' . json_encode($sub2) .'}',
+            ],
+            [
+                'value' => [$sub1, $sub2],
+                'expected' => '{"foo":' . json_encode($sub1) . ',"bar":' . json_encode($sub2) .'}',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider uncastWithKey_dataProvider
+     */
+    public function test_uncastWithKey(mixed $value, mixed $expected): void
+    {
+        $entity = new class($value) extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestSubEntity::class, 'str')]
+                public ?array $column,
+            ) {}
+        };
+        $actual = $entity->toArray()['column'];
+        $this->assertEquals($expected, $actual);
+    }
 
     public function test_castException(): void
     {

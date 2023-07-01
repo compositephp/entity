@@ -7,5 +7,6 @@ class ListOf
 {
     public function __construct(
         public readonly string $class,
+        public readonly ?string $keyColumn = null,
     ){}
 }
