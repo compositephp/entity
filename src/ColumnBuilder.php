@@ -4,6 +4,7 @@ namespace Composite\Entity;
 
 use Composite\Entity\Columns;
 use Composite\Entity\Exceptions\EntityException;
+use Ramsey\Uuid\UuidInterface;
 
 class ColumnBuilder
 {
@@ -14,6 +15,7 @@ class ColumnBuilder
         'float' => Columns\FloatColumn::class,
         'int' => Columns\IntegerColumn::class,
         'string' => Columns\StringColumn::class,
+        UuidInterface::class => Columns\UuidColumn::class,
         \stdClass::class => Columns\ObjectColumn::class,
         \DateTime::class => Columns\DateTimeColumn::class,
         \DateTimeImmutable::class => Columns\DateTimeColumn::class,
