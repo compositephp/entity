@@ -130,6 +130,28 @@ abstract class AbstractEntity implements \JsonSerializable
         return $this->toArray();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $result = [];
+        foreach ((new \ReflectionClass($this))->getProperties() as $property) {
+            if ($property->name === '_initialColumns') {
+                continue;
+            }
+            if (!$property->isInitialized($this)) {
+                continue;
+            }
+            $propertyName = $property->name;
+            if ($property->isPrivate()) {
+                $propertyName .= ':private';
+            }
+            $result[$propertyName] = $property->getValue($this);
+        }
+        return $result;
+    }
+
     final public function isNew(): bool
     {
         return $this->_initialColumns === null;
