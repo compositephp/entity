@@ -4,6 +4,7 @@ namespace Composite\Entity\Tests;
 
 use Composite\Entity\AbstractEntity;
 use Composite\Entity\Helpers\DateTimeHelper;
+use Composite\Entity\Tests\TestStand\TestSubEntity;
 
 final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -218,5 +219,28 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         $dataArray = ['id' => 123, 'str1' => 'bar'];
         $loadedEntity = $entity::fromArray($dataArray);
         $this->assertEquals($dataArray, $loadedEntity->toArray());
+    }
+
+    public function test_debugInfo(): void
+    {
+        $entity = new class extends AbstractEntity {
+            public int $var1 = 1;
+            protected int $var2 = 2;
+            private int $var3 = 3;
+            public int $var4;
+            public function __construct(
+                public TestSubEntity $subEntity = new TestSubEntity(),
+            ) {
+            }
+        };
+        $expected = print_r([
+            'var1' => 1,
+            'var2' => 2,
+            'var3:private' => 3,
+            'subEntity' => new TestSubEntity(),
+        ], true);
+        
+        $expected = str_replace('Array', 'Composite\Entity\AbstractEntity@anonymous Object', $expected);
+        $this->assertEquals($expected, print_r($entity, true));
     }
 }

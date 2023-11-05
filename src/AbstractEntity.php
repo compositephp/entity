@@ -137,9 +137,6 @@ abstract class AbstractEntity implements \JsonSerializable
     {
         $result = [];
         foreach ((new \ReflectionClass($this))->getProperties() as $property) {
-            if ($property->name === '_initialColumns') {
-                continue;
-            }
             if (!$property->isInitialized($this)) {
                 continue;
             }
