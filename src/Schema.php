@@ -13,6 +13,9 @@ class Schema
     public readonly array $attributes;
     public readonly ?HydratorInterface $hydrator;
 
+    /**
+     * @param class-string<AbstractEntity> $class
+     */
     public function __construct(
         public readonly string $class,
     ) {
