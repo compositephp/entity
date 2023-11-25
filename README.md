@@ -3,10 +3,12 @@
 [![Build Status](https://github.com/compositephp/entity/actions/workflows/main.yml/badge.svg)](https://github.com/compositephp/entity/actions)
 [![Codecov](https://codecov.io/gh/compositephp/entity/branch/master/graph/badge.svg)](https://codecov.io/gh/compositephp/entity/)
 
-Composite Entity is a lightweight and intelligent PHP 8.1+ class that shines in its ability to be serialized and deserialized from an array. 
-This smart feature makes it extremely useful when managing data from databases. 
+Composite Entity is a PHP 8.1+ lightweight class designed for efficient and intelligent data handling. 
+It specializes in the serialization and deserialization of data, making it highly beneficial for database management.
 
-It efficiently converts database rows into a strictly typed object and back into an array, enhancing your workflow and making your interaction with databases much smoother and more productive.
+## Features
+* Converts database rows to strictly typed objects and vice versa.
+* Streamlines database interactions.
 
 Overview:
 * [Requirements](#requirements)
@@ -16,11 +18,11 @@ Overview:
 
 ## Requirements
 
-* PHP 8.1+
+* PHP 8.1 or higher.
 
 ## Installation
 
-Install package via composer:
+Install using Composer::
 
  ```shell
  $ composer require compositephp/entity
@@ -28,19 +30,11 @@ Install package via composer:
 
 ## Supported column types:
 
-Composite Entity has the capability to automatically serialize and deserialize nearly all data types you might require.
-- String
-- Integer
-- Float
-- Bool
-- Array
-- Object (stdClass)
-- DateTime and DateTimeImmutable
-- Enum
-- Another Entity
-- List of map of Entities
-- Collection (any ArrayAccess instance, e.g. Doctrine Collection)
-- Custom class that implements `Composite\DB\Entity\CastableInterface`
+Composite Entity supports a wide range of data types:
+
+* Basic types: String, Integer, Float, Bool, Array.
+* Complex types: Object (stdClass), DateTime/DateTimeImmutable, Enum.
+* Advanced types: Entity, Entity Lists or Maps, Collections (e.g., Doctrine Collection), Custom classes implementing Composite\DB\Entity\CastableInterface.
 
 ## Quick example
 
@@ -113,23 +107,20 @@ And that's it, no special getters or setters, no "behaviours" or extra code, Com
 
 ### Custom Hydration
 
-If you like to have a full control or best performance during the serialization and deserialization of the entity you can 
-implement your own Hydrator. To do this, follow the simple steps:
+For tailored performance, implement your own hydrator:
 
-1. Create class and implement `Composite\Entity\HydratorInterface`
-2. Add attribute `Composite\Entity\Attributes\Hydrator` to your entity class.
+1. Create a class implementing `Composite\Entity\HydratorInterface`.
+2. Add `Composite\Entity\Attributes\Hydrator` attribute to your entity class.
 
-### Usefull Attributes
+### Useful Attributes
 
 * ####  Composite\Entity\Attributes\SkipSerialization
 
-    Add this attribute to any entity property to remove it from the hydration process.
+  Exclude properties from hydration.
 
 * #### Composite\Entity\Attributes\ListOf
 
-    Can be added to array property, indicate the desired target entity class to store list of of this entity in your property.
-    Use the second parameter `keyColumn` to store the associative array in your property, so you can easily search the entities 
-    by the named key later.
+  Define lists of entities within a property.
 
     Example:
     
