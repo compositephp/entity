@@ -14,6 +14,7 @@ abstract class AbstractColumn
     public function __construct(
         public readonly string $name,
         public readonly string $type,
+        public readonly string|AbstractColumn|null $subType,
         public readonly array $attributes,
         public readonly bool $hasDefaultValue,
         public readonly mixed $defaultValue,

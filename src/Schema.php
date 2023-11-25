@@ -7,6 +7,8 @@ use Composite\Entity\Columns\AbstractColumn;
 
 class Schema
 {
+    /** @var class-string<AbstractEntity> $class */
+    public readonly string $class;
     /** @var array<string, AbstractColumn> $columns */
     public readonly array $columns;
     /** @var array<object> */
@@ -16,10 +18,10 @@ class Schema
     /**
      * @param class-string<AbstractEntity> $class
      */
-    public function __construct(
-        public readonly string $class,
-    ) {
-        $reflection = new \ReflectionClass($class);
+    public function __construct(string $class)
+    {
+        $this->class = $class;
+        $reflection = new \ReflectionClass($this->class);
         $attributes = [];
         $hydrator = null;
         foreach ($reflection->getAttributes() as $attribute) {
@@ -46,6 +48,11 @@ class Schema
      */
     public function getFirstAttributeByClass(string $class): ?object
     {
-        return current(array_filter($this->attributes, fn($attribute) => $attribute instanceof $class)) ?: null;
+        foreach ($this->attributes as $attribute) {
+            if ($attribute instanceof $class) {
+                return $attribute;
+            }
+        }
+        return null;
     }
 }

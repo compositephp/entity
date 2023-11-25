@@ -2,7 +2,6 @@
 
 namespace Composite\Entity;
 
-use Composite\Entity\Columns;
 use Composite\Entity\Exceptions\EntityException;
 use Ramsey\Uuid\UuidInterface;
 
@@ -40,10 +39,6 @@ class ColumnBuilder
             if ($property->isStatic() || $property->isPrivate()) {
                 continue;
             }
-            $type = $property->getType();
-            if (!$type instanceof \ReflectionNamedType) {
-                throw new EntityException("Property `{$property->name}` must have named type");
-            }
             /** @var array<class-string, object> $propertyAttributes */
             $propertyAttributes = [];
             foreach ($property->getAttributes() as $attribute) {
@@ -52,6 +47,10 @@ class ColumnBuilder
                     continue 2;
                 }
                 $propertyAttributes[$attributeInstance::class] = $attributeInstance;
+            }
+            $type = $property->getType();
+            if (!$type instanceof \ReflectionNamedType) {
+                throw new EntityException("Property `{$property->name}` must have named type");
             }
 
             if (array_key_exists($property->name, $constructorDefaultValues)) {
@@ -64,65 +63,87 @@ class ColumnBuilder
                 $hasDefaultValue = false;
                 $defaultValue = null;
             }
+            [
+                'columnClass' => $columnClass,
+                'type' => $typeName,
+                'subType' => $subType,
+            ] = self::getPropertyConfig($type->getName(), $propertyAttributes);
 
-            if (isset($propertyAttributes[Attributes\ListOf::class])) {
-                if ($type->getName() !== 'array') {
-                    throw new EntityException("Property `{$property->name}` has ListOf attribute and must have array type.");
-                }
-                /** @var Attributes\ListOf $listOfAttribute */
-                $listOfAttribute = $propertyAttributes[Attributes\ListOf::class];
-                $typeName = $listOfAttribute->class;
-
-                $result[$property->getName()] = new Columns\EntityListColumn(
-                    name: $property->getName(),
-                    type: $typeName,
-                    keyColumn: $listOfAttribute->keyColumn,
-                    attributes: $propertyAttributes,
-                    hasDefaultValue: $hasDefaultValue,
-                    defaultValue: $defaultValue,
-                    isNullable: $type->allowsNull(),
-                    isReadOnly: $property->isReadOnly(),
-                    isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
-                );
-            } else {
-                $typeName = $type->getName();
-                $columnClass = self::PRIMITIVE_COLUMN_MAP[$typeName] ?? null;
-
-                if (!$columnClass && class_exists($typeName)) {
-                    if (is_subclass_of($typeName, AbstractEntity::class)) {
-                        $columnClass = Columns\EntityColumn::class;
-                    } elseif (is_subclass_of($typeName, \BackedEnum::class)) {
-                        $reflectionEnum = new \ReflectionEnum($typeName);
-                        /** @var \ReflectionNamedType $backingType */
-                        $backingType = $reflectionEnum->getBackingType();
-                        if ($backingType->getName() === 'int') {
-                            $columnClass = Columns\BackedIntEnumColumn::class;
-                        } else {
-                            $columnClass = Columns\BackedStringEnumColumn::class;
-                        }
-                    } elseif (is_subclass_of($typeName, \UnitEnum::class)) {
-                        $columnClass = Columns\UnitEnumColumn::class;
-                    } else {
-                        if (in_array(CastableInterface::class, class_implements($typeName) ?: [])) {
-                            $columnClass = Columns\CastableColumn::class;
-                        }
-                    }
-                }
-                if (!$columnClass) {
-                    throw new EntityException("Type `{$property->getType()}` is not supported");
-                }
-                $result[$property->getName()] = new $columnClass(
-                    name: $property->getName(),
-                    type: $typeName,
-                    attributes: $propertyAttributes,
-                    hasDefaultValue: $hasDefaultValue,
-                    defaultValue: $defaultValue,
-                    isNullable: $type->allowsNull(),
-                    isReadOnly: $property->isReadOnly(),
-                    isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
-                );
-            }
+            $result[$property->getName()] = new $columnClass(
+                name: $property->getName(),
+                type: $typeName,
+                subType: $subType,
+                attributes: $propertyAttributes,
+                hasDefaultValue: $hasDefaultValue,
+                defaultValue: $defaultValue,
+                isNullable: $type->allowsNull(),
+                isReadOnly: $property->isReadOnly(),
+                isConstructorPromoted: !empty($constructorColumns[$property->getName()]),
+            );
         }
         return $result;
+    }
+
+    /**
+     * @param array<class-string, object> $propertyAttributes
+     * @return array{'columnClass': class-string, 'type': string, 'subType': string}
+     */
+    private static function getPropertyConfig(string $propertyTypeName, array $propertyAttributes = []): array
+    {
+        $columnClass = self::PRIMITIVE_COLUMN_MAP[$propertyTypeName] ?? null;
+        $type = $propertyTypeName;
+        $subType = null;
+
+        if ($columnClass === Columns\ArrayColumn::class && isset($propertyAttributes[Attributes\ListOf::class])) {
+            $columnClass = Columns\EntityListColumn::class;
+            /** @var Attributes\ListOf $listOfAttribute */
+            $listOfAttribute = $propertyAttributes[Attributes\ListOf::class];
+            $type = $listOfAttribute->class;
+            $subType = $listOfAttribute->keyColumn;
+        } elseif (!$columnClass && class_exists($propertyTypeName)) {
+            if (is_subclass_of($propertyTypeName, AbstractEntity::class)) {
+                $columnClass = Columns\EntityColumn::class;
+            } elseif (is_subclass_of($propertyTypeName, \BackedEnum::class)) {
+                $reflectionEnum = new \ReflectionEnum($propertyTypeName);
+                /** @var \ReflectionNamedType $backingType */
+                $backingType = $reflectionEnum->getBackingType();
+                if ($backingType->getName() === 'int') {
+                    $columnClass = Columns\BackedIntEnumColumn::class;
+                } else {
+                    $columnClass = Columns\BackedStringEnumColumn::class;
+                }
+            } elseif (is_subclass_of($propertyTypeName, \UnitEnum::class)) {
+                $columnClass = Columns\UnitEnumColumn::class;
+            } else {
+                $classInterfaces = array_fill_keys(class_implements($propertyTypeName), true);
+                if (!empty($classInterfaces[CastableInterface::class])) {
+                    $columnClass = Columns\CastableColumn::class;
+                } elseif (!empty($classInterfaces[\ArrayAccess::class])
+                    && (!empty($classInterfaces[\Iterator::class]) || !empty($classInterfaces[\IteratorAggregate::class]))) {
+                    $columnClass = Columns\CollectionColumn::class;
+                    $reflectionMethod = new \ReflectionMethod($propertyTypeName, 'offsetGet');
+                    $returnType = $reflectionMethod->getReturnType();
+                    [
+                        'columnClass' => $collectionItemClass,
+                        'type' => $collectionItemTypeName,
+                    ] = self::getPropertyConfig($returnType->getName());
+                    $subType = new $collectionItemClass(
+                        name: $propertyTypeName,
+                        type: $collectionItemTypeName,
+                        subType: null,
+                        attributes: [],
+                        hasDefaultValue: false,
+                        defaultValue: null,
+                        isNullable: true,
+                        isReadOnly: false,
+                        isConstructorPromoted: false,
+                    );
+                }
+            }
+        }
+        if (!$columnClass) {
+            throw new EntityException("Type `{$propertyTypeName}` is not supported");
+        }
+        return ['columnClass' => $columnClass, 'type' => $type, 'subType' => $subType];
     }
 }

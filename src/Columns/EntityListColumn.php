@@ -7,34 +7,6 @@ use Composite\Entity\Exceptions\EntityException;
 
 class EntityListColumn extends AbstractColumn
 {
-    private readonly ?string $keyColumn;
-    /**
-     * @param array<string, object> $attributes
-     */
-    public function __construct(
-        string $name,
-        string $type,
-        ?string $keyColumn,
-        array $attributes,
-        bool $hasDefaultValue,
-        mixed $defaultValue,
-        bool $isNullable,
-        bool $isReadOnly,
-        bool $isConstructorPromoted,
-    ) {
-        $this->keyColumn = $keyColumn;
-        parent::__construct(
-            name: $name,
-            type: $type,
-            attributes: $attributes,
-            hasDefaultValue: $hasDefaultValue,
-            defaultValue: $defaultValue,
-            isNullable: $isNullable,
-            isReadOnly: $isReadOnly,
-            isConstructorPromoted: $isConstructorPromoted,
-        );
-    }
-
     /**
      * @return array<AbstractEntity>
      * @throws EntityException
@@ -55,8 +27,8 @@ class EntityListColumn extends AbstractColumn
             if (!$entity = $this->getEntity($data)) {
                 continue;
             }
-            if ($this->keyColumn && isset($entity->{$this->keyColumn})) {
-                $result[$entity->{$this->keyColumn}] = $entity;
+            if ($this->subType && isset($entity->{$this->subType})) {
+                $result[$entity->{$this->subType}] = $entity;
             } else {
                 $result[] = $entity;
             }
@@ -74,8 +46,8 @@ class EntityListColumn extends AbstractColumn
         foreach ($entityValue as $item) {
             if ($item instanceof $this->type) {
                 $data = $item->toArray();
-                if ($this->keyColumn && isset($data[$this->keyColumn])) {
-                    $list[$data[$this->keyColumn]] = $data;
+                if ($this->subType && isset($data[$this->subType])) {
+                    $list[$data[$this->subType]] = $data;
                 } else {
                     $list[] = $data;
                 }

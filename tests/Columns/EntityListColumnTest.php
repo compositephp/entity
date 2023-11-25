@@ -216,12 +216,8 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
                 public array $column,
             ) {}
         };
-        try {
-            $entity->toArray();
-            $this->assertTrue(false);
-        } catch (EntityException) {
-            $this->assertTrue(true);
-        }
+        $this->expectException(EntityException::class);
+        $entity->toArray();
     }
 
 
@@ -232,11 +228,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
                 public TestEntity $column,
             ) {}
         };
-        try {
-            $entity->toArray();
-            $this->assertTrue(false);
-        } catch (EntityException) {
-            $this->assertTrue(true);
-        }
+        $this->expectException(EntityException::class);
+        $entity->toArray();
     }
 }

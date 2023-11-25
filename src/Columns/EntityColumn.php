@@ -17,6 +17,9 @@ class EntityColumn extends AbstractColumn
         if ($dbValue instanceof $className) {
             return $dbValue;
         }
+        if (is_array($dbValue)) {
+            return $className::fromArray($dbValue);
+        }
         try {
             $data = (array)\json_decode(strval($dbValue), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
