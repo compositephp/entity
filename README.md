@@ -12,6 +12,7 @@ Overview:
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Quick example](#quick-example)
+* [Advanced usage](#advanced-usage)
 
 ## Requirements
 
@@ -37,6 +38,8 @@ Composite Entity has the capability to automatically serialize and deserialize n
 - DateTime and DateTimeImmutable
 - Enum
 - Another Entity
+- List of map of Entities
+- Collection (any ArrayAccess instance, e.g. Doctrine Collection)
 - Custom class that implements `Composite\DB\Entity\CastableInterface`
 
 ## Quick example
@@ -105,6 +108,54 @@ $user = User::fromArray([
 ```
 
 And that's it, no special getters or setters, no "behaviours" or extra code, Composite Entity casts everything automatically.
+
+## Advanced usage
+
+### Custom Hydration
+
+If you like to have a full control or best performance during the serialization and deserialization of the entity you can 
+implement your own Hydrator. To do this, follow the simple steps:
+
+1. Create class and implement `Composite\Entity\HydratorInterface`
+2. Add attribute `Composite\Entity\Attributes\Hydrator` to your entity class.
+
+### Usefull Attributes
+
+#### Composite\Entity\Attributes\SkipSerialization
+
+Add this attribute to any entity property to remove it from the hydration process.
+
+#### Composite\Entity\Attributes\ListOf
+
+Can be added to array property, indicate the desired target entity class to store list of of this entity in your property.
+Use the second parameter `keyColumn` to store the associative array in your property, so you can easily search the entities 
+by the named key later.
+
+Example:
+
+```php
+use Composite\Entity\AbstractEntity;
+use Composite\Entity\Attributes\ListOf;
+
+class User extends AbstractEntity
+{
+    public readonly int $id;
+    
+    public function __construct(
+        public string $name,
+        #[ListOf(Setting::class, 'name')]
+        public array $settings = [],
+    ) {}
+}
+
+class Setting extends AbstractEntity
+{
+    public function __construct(
+        public readonly string $name,
+        public bool $isActive,
+    ) {}
+}
+```
 
 ## License:
 
