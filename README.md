@@ -101,7 +101,8 @@ $user = User::fromArray([
 ]);
 ```
 
-And that's it, no special getters or setters, no "behaviours" or extra code, Composite Entity casts everything automatically.
+And that's it. No need for special getters or setters, no additional "behaviours" or extra layers of code.
+Composite Entity handles everything automatically, ensuring seamless data casting.
 
 ## Advanced usage
 
@@ -122,31 +123,31 @@ For tailored performance, implement your own hydrator:
 
   Define lists of entities within a property.
 
-    Example:
-    
-    ```php
-    use Composite\Entity\AbstractEntity;
-    use Composite\Entity\Attributes\ListOf;
-    
-    class User extends AbstractEntity
-    {
-        public readonly int $id;
-        
-        public function __construct(
-            public string $name,
-            #[ListOf(Setting::class, 'name')]
-            public array $settings = [],
-        ) {}
-    }
-    
-    class Setting extends AbstractEntity
-    {
-        public function __construct(
-            public readonly string $name,
-            public bool $isActive,
-        ) {}
-    }
-    ```
+  Example:
+  
+  ```php
+  use Composite\Entity\AbstractEntity;
+  use Composite\Entity\Attributes\ListOf;
+  
+  class User extends AbstractEntity
+  {
+      public readonly int $id;
+      
+      public function __construct(
+          public string $name,
+          #[ListOf(Setting::class)]
+          public array $settings = [],
+      ) {}
+  }
+  
+  class Setting extends AbstractEntity
+  {
+      public function __construct(
+          public readonly string $name,
+          public bool $isActive,
+      ) {}
+  }
+  ```
 
 ## License:
 
