@@ -121,41 +121,41 @@ implement your own Hydrator. To do this, follow the simple steps:
 
 ### Usefull Attributes
 
-#### Composite\Entity\Attributes\SkipSerialization
+* ####  Composite\Entity\Attributes\SkipSerialization
 
-Add this attribute to any entity property to remove it from the hydration process.
+    Add this attribute to any entity property to remove it from the hydration process.
 
-#### Composite\Entity\Attributes\ListOf
+* #### Composite\Entity\Attributes\ListOf
 
-Can be added to array property, indicate the desired target entity class to store list of of this entity in your property.
-Use the second parameter `keyColumn` to store the associative array in your property, so you can easily search the entities 
-by the named key later.
+    Can be added to array property, indicate the desired target entity class to store list of of this entity in your property.
+    Use the second parameter `keyColumn` to store the associative array in your property, so you can easily search the entities 
+    by the named key later.
 
-Example:
-
-```php
-use Composite\Entity\AbstractEntity;
-use Composite\Entity\Attributes\ListOf;
-
-class User extends AbstractEntity
-{
-    public readonly int $id;
+    Example:
     
-    public function __construct(
-        public string $name,
-        #[ListOf(Setting::class, 'name')]
-        public array $settings = [],
-    ) {}
-}
-
-class Setting extends AbstractEntity
-{
-    public function __construct(
-        public readonly string $name,
-        public bool $isActive,
-    ) {}
-}
-```
+    ```php
+    use Composite\Entity\AbstractEntity;
+    use Composite\Entity\Attributes\ListOf;
+    
+    class User extends AbstractEntity
+    {
+        public readonly int $id;
+        
+        public function __construct(
+            public string $name,
+            #[ListOf(Setting::class, 'name')]
+            public array $settings = [],
+        ) {}
+    }
+    
+    class Setting extends AbstractEntity
+    {
+        public function __construct(
+            public readonly string $name,
+            public bool $isActive,
+        ) {}
+    }
+    ```
 
 ## License:
 
