@@ -159,8 +159,16 @@ abstract class AbstractEntity implements \JsonSerializable
         return $this->_initialColumns[$columnName] ?? null;
     }
 
-    final public function resetChangedColumns(): void
+    /**
+     * @param array<string, mixed>|null $values An associative array with column names as keys and
+     *                                          their respective values to reset, or null to reset all columns.
+     */
+    final public function resetChangedColumns(?array $values = null): void
     {
-        $this->_initialColumns = $this->toArray();
+        if ($values) {
+            $this->_initialColumns = $values + ($this->_initialColumns ?? []);
+        } else {
+            $this->_initialColumns = $this->toArray();
+        }
     }
 }
