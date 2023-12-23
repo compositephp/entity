@@ -243,4 +243,18 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         $expected = str_replace('Array', 'Composite\Entity\AbstractEntity@anonymous Object', $expected);
         $this->assertEquals($expected, print_r($entity, true));
     }
+
+    public function test_resetChangedColumns(): void
+    {
+        $entity = new TestSubEntity();
+        $this->assertEquals($entity->toArray(), $entity->getChangedColumns());
+
+        $entity->resetChangedColumns();
+        $this->assertEquals([], $entity->getChangedColumns());
+
+        $entity = new TestSubEntity();
+        $entity->resetChangedColumns(['str' => $entity->str]);
+
+        $this->assertEquals(['number' => $entity->number], $entity->getChangedColumns());
+    }
 }
