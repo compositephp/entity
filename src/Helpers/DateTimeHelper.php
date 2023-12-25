@@ -27,11 +27,11 @@ class DateTimeHelper
             return true;
         }
         if ($value instanceof \DateTimeInterface) {
-            $value = self::dateTimeToString($value);
+            return $value->getTimestamp() <= 1;
         }
-        return in_array(
-            $value,
-            [self::DEFAULT_TIMESTAMP, self::DEFAULT_TIMESTAMP_MICRO, self::DEFAULT_DATETIME, self::DEFAULT_DATETIME_MICRO]
-        );
+        return $value === self::DEFAULT_TIMESTAMP
+            || $value === self::DEFAULT_TIMESTAMP_MICRO
+            || $value === self::DEFAULT_DATETIME
+            || $value === self::DEFAULT_DATETIME_MICRO;
     }
 }
