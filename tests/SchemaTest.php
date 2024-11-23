@@ -8,6 +8,7 @@ use Composite\Entity\Schema;
 use Composite\Entity\Tests\TestStand\TesEntityWithAttribute;
 use Composite\Entity\Tests\TestStand\TestAttribute;
 use Composite\Entity\Tests\TestStand\TestBackedIntEnum;
+use Composite\Entity\Tests\TestStand\TestEntity;
 
 final class SchemaTest extends \PHPUnit\Framework\TestCase
 {
@@ -61,6 +62,12 @@ final class SchemaTest extends \PHPUnit\Framework\TestCase
         $attribute = TesEntityWithAttribute::schema()->getFirstAttributeByClass(TestAttribute::class);
         $this->assertNotNull($attribute);
         $this->assertEquals(2, $attribute->val);
+    }
+
+    public function test_getAttributeEmpty(): void
+    {
+        $attribute = TestEntity::schema()->getFirstAttributeByClass(TestAttribute::class);
+        $this->assertNull($attribute);
     }
 
     public function test_getColumn(): void
