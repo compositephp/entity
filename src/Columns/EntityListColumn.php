@@ -15,7 +15,11 @@ class EntityListColumn extends AbstractColumn
     {
         if (is_string($dbValue)) {
             try {
-                $dbValue = (array)\json_decode($dbValue, true, 512, JSON_THROW_ON_ERROR);
+                $dbValue = (array)\json_decode(
+                    json: $dbValue,
+                    associative: true,
+                    flags: JSON_THROW_ON_ERROR,
+                );
             } catch (\JsonException $e) {
                 throw new EntityException($e->getMessage(), $e);
             }
@@ -28,7 +32,13 @@ class EntityListColumn extends AbstractColumn
                 continue;
             }
             if ($this->subType && isset($entity->{$this->subType})) {
-                $result[$entity->{$this->subType}] = $entity;
+                $key = $entity->{$this->subType};
+                if ($key instanceof \BackedEnum) {
+                    $key = $key->value;
+                } elseif ($key instanceof \UnitEnum) {
+                    $key = $key->name;
+                }
+                $result[$key] = $entity;
             } else {
                 $result[] = $entity;
             }
@@ -47,14 +57,20 @@ class EntityListColumn extends AbstractColumn
             if ($item instanceof $this->type) {
                 $data = $item->toArray();
                 if ($this->subType && isset($data[$this->subType])) {
-                    $list[$data[$this->subType]] = $data;
+                    $key = $item->{$this->subType};
+                    if ($key instanceof \BackedEnum) {
+                        $key = $key->value;
+                    } elseif ($key instanceof \UnitEnum) {
+                        $key = $key->name;
+                    }
+                    $list[$key] = $data;
                 } else {
                     $list[] = $data;
                 }
             }
         }
         try {
-            return \json_encode($list, JSON_THROW_ON_ERROR);
+            return json_encode($list, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new EntityException($e->getMessage(), $e);
         }
@@ -67,18 +83,11 @@ class EntityListColumn extends AbstractColumn
         }
         /** @var class-string<AbstractEntity> $entityClass */
         $entityClass = $this->type;
-        if ($data instanceof $entityClass) {
+        if (is_object($data) && $data::class === $entityClass) {
             return $data;
         }
-        if (!is_array($data)) {
-            if (!is_string($data) || !$data) {
-                return null;
-            }
-            try {
-                $data = (array)\json_decode($data, true, 512, JSON_THROW_ON_ERROR);
-            } catch (\JsonException) {
-                return null;
-            }
+        if (!\is_array($data)) {
+            return null;
         }
         return $entityClass::fromArray($data);
     }

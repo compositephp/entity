@@ -5,8 +5,10 @@ namespace Composite\Entity\Tests\Columns;
 use Composite\Entity\AbstractEntity;
 use Composite\Entity\Attributes\ListOf;
 use Composite\Entity\Exceptions\EntityException;
+use Composite\Entity\Tests\TestStand\TestBackedStringEnum;
 use Composite\Entity\Tests\TestStand\TestEntity;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
+use Composite\Entity\Tests\TestStand\TestUnitEnum;
 
 final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -119,6 +121,46 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(ListOf::class, $attribute);
     }
 
+    public function test_castWithUnitEnumKey(): void
+    {
+        $class = new class extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class, 'unit_enum')]
+                public ?array $column = null,
+            ) {}
+        };
+
+        $entity = $class::fromArray([
+            'column' => [
+                TestUnitEnum::Foo->name => ['str' => 'UnitFoo', 'unit_enum' => TestUnitEnum::Foo->name],
+                TestUnitEnum::Bar->name => ['str' => 'UnitBar', 'unit_enum' => TestUnitEnum::Bar->name],
+            ]
+        ]);
+        $this->assertCount(2, $entity->column);
+        $this->assertEquals( 'UnitFoo', $entity->column[TestUnitEnum::Foo->name]->str);
+        $this->assertEquals('UnitBar', $entity->column[TestUnitEnum::Bar->name]->str);
+    }
+
+    public function test_castWithBackedEnumKey(): void
+    {
+        $class = new class extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class, 'backed_enum')]
+                public ?array $column = null,
+            ) {}
+        };
+
+        $entity = $class::fromArray([
+            'column' => [
+                TestBackedStringEnum::Foo->value => ['str' => 'BackedFoo', 'backed_enum' => TestBackedStringEnum::Foo->value],
+                TestBackedStringEnum::Bar->value => ['str' => 'BackedBar', 'backed_enum' => TestBackedStringEnum::Bar->value],
+            ]
+        ]);
+        $this->assertCount(2, $entity->column);
+        $this->assertEquals( 'BackedFoo', $entity->column[TestBackedStringEnum::Foo->value]->str);
+        $this->assertEquals('BackedBar', $entity->column[TestBackedStringEnum::Bar->value]->str);
+    }
+
     public static function uncast_dataProvider(): array
     {
         $sub1 = TestSubEntity::fromArray(['str' => 'foo', 'number' => 123]);
@@ -188,6 +230,46 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         };
         $actual = $entity->toArray()['column'];
         $this->assertEquals($expected, $actual);
+    }
+
+    public function test_uncastWithUnitEnumKey(): void
+    {
+        $value = [
+            TestUnitEnum::Foo->name => new TestEntity(str: 'UnitFoo', unit_enum: TestUnitEnum::Foo),
+            TestUnitEnum::Bar->name => new TestEntity(str: 'UnitBar', unit_enum: TestUnitEnum::Bar),
+        ];
+        $entity = new class($value) extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class, 'unit_enum')]
+                public array $column,
+            ) {}
+        };
+        $data = json_decode($entity->toArray()['column'], true);
+        
+        $this->assertEquals('UnitFoo', $data[TestUnitEnum::Foo->name]['str']);
+        $this->assertEquals(TestUnitEnum::Foo->name, $data[TestUnitEnum::Foo->name]['unit_enum']);
+        $this->assertEquals('UnitBar', $data[TestUnitEnum::Bar->name]['str']);
+        $this->assertEquals(TestUnitEnum::Bar->name, $data[TestUnitEnum::Bar->name]['unit_enum']);
+    }
+    
+    public function test_uncastWithBackedEnumKey(): void
+    {
+        $value = [
+            TestBackedStringEnum::Foo->value => new TestEntity(str: 'BackedFoo', backed_enum: TestBackedStringEnum::Foo),
+            TestBackedStringEnum::Bar->value => new TestEntity(str: 'BackedBar', backed_enum: TestBackedStringEnum::Bar),
+        ];
+        $entity = new class($value) extends AbstractEntity {
+            public function __construct(
+                #[ListOf(TestEntity::class, 'backed_enum')]
+                public array $column,
+            ) {}
+        };
+        $data = json_decode($entity->toArray()['column'], true);
+        
+        $this->assertEquals('BackedFoo', $data[TestBackedStringEnum::Foo->value]['str']);
+        $this->assertEquals(TestBackedStringEnum::Foo->value, $data[TestBackedStringEnum::Foo->value]['backed_enum']);
+        $this->assertEquals('BackedBar', $data[TestBackedStringEnum::Bar->value]['str']);
+        $this->assertEquals(TestBackedStringEnum::Bar->value, $data[TestBackedStringEnum::Bar->value]['backed_enum']);
     }
 
     public function test_castException(): void
