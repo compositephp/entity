@@ -3,6 +3,7 @@
 namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Tests\TestStand\TestUnitEnum;
 
 final class UnitEnumColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -19,19 +20,19 @@ final class UnitEnumColumnTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 'value' => 'Foo',
-                'expected' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Foo,
+                'expected' => TestUnitEnum::Foo,
             ],
             [
                 'value' => 'Bar',
-                'expected' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Bar,
+                'expected' => TestUnitEnum::Bar,
             ],
             [
-                'value' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Foo,
-                'expected' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Foo,
+                'value' => TestUnitEnum::Foo,
+                'expected' => TestUnitEnum::Foo,
             ],
             [
-                'value' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Bar,
-                'expected' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Bar,
+                'value' => TestUnitEnum::Bar,
+                'expected' => TestUnitEnum::Bar,
             ],
             [
                 'value' => 'non-exist',
@@ -43,11 +44,11 @@ final class UnitEnumColumnTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider cast_dataProvider
      */
-    public function test_cast(mixed $value, ?\Composite\Entity\Tests\TestStand\TestUnitEnum $expected): void
+    public function test_cast(mixed $value, ?TestUnitEnum $expected): void
     {
         $class = new class extends AbstractEntity {
             public function __construct(
-                public ?\Composite\Entity\Tests\TestStand\TestUnitEnum $column = null,
+                public ?TestUnitEnum $column = null,
             ) {}
         };
         $entity = $class::fromArray(['column' => $value]);
@@ -62,11 +63,11 @@ final class UnitEnumColumnTest extends \PHPUnit\Framework\TestCase
                 'expected' => null,
             ],
             [
-                'value' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Foo,
+                'value' => TestUnitEnum::Foo,
                 'expected' => 'Foo',
             ],
             [
-                'value' => \Composite\Entity\Tests\TestStand\TestUnitEnum::Bar,
+                'value' => TestUnitEnum::Bar,
                 'expected' => 'Bar',
             ],
         ];
@@ -79,7 +80,7 @@ final class UnitEnumColumnTest extends \PHPUnit\Framework\TestCase
     {
         $entity = new class($value) extends AbstractEntity {
             public function __construct(
-                public ?\Composite\Entity\Tests\TestStand\TestUnitEnum $column,
+                public ?TestUnitEnum $column,
             ) {}
         };
         $actual = $entity->toArray()['column'];
