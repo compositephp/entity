@@ -3,7 +3,9 @@
 namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Attributes\Date;
 use Composite\Entity\Helpers\DateTimeHelper;
+use DateTimeImmutable;
 
 final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -138,5 +140,80 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
 
         $newEntity = $entity::fromArray(['column' => null]);
         $this->assertNull($newEntity->column);
+    }
+
+
+    public static function date_dataProvider(): array
+    {
+        return [
+            [
+                'value' => '2020-01-02 23:59:59',
+                'expected' => '2020-01-02',
+            ],
+            [
+                'value' => '2000-02-02 00:00:00',
+                'expected' => '2000-02-02',
+            ],
+            [
+                'value' => '1990-07-07',
+                'expected' => '1990-07-07',
+            ],
+            [
+                'value' => 'not valid',
+                'expected' => null,
+            ],
+            [
+                'value' => null,
+                'expected' => null,
+            ],
+            [
+                'value' => false,
+                'expected' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider date_dataProvider
+     */
+    public function test_dateUncast(mixed $value, ?string $expected): void
+    {
+        $class = new class() extends AbstractEntity {
+            public function __construct(
+                #[Date]
+                public ?\DateTimeImmutable $column = null,
+            ) {}
+        };
+
+        $entity = $class::fromArray(['column' => $value]);
+        $actual = $entity->toArray()['column'];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_dateCast(): void
+    {
+        $date = '2000-01-01';
+        $dti = new \DateTimeImmutable($date . ' 12:00:00');
+        $entity = new class($dti) extends AbstractEntity {
+            public function __construct(
+                #[Date]
+                public \DateTimeImmutable $column,
+            ) {}
+        };
+        $entity->resetChangedColumns();
+
+        $actual = $entity->toArray()['column'];
+        $this->assertEquals($date, $actual);
+        $this->assertEmpty($entity->getChangedColumns());
+
+        $entity->column = new DateTimeImmutable($date . ' 23:59:59');
+        $this->assertEmpty($entity->getChangedColumns());
+
+        $newDate = '2020-07-07';
+        $entity->column = new DateTimeImmutable($newDate . ' 07:07:07');
+        $this->assertEquals(
+            ['column' => $newDate],
+            $entity->getChangedColumns(),
+        );
     }
 }
