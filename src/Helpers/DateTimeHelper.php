@@ -9,6 +9,7 @@ class DateTimeHelper
     final public const DEFAULT_DATETIME = '1000-01-01 00:00:00';
     final public const DEFAULT_DATETIME_MICRO = '1000-01-01 00:00:00.000000';
     final public const DATETIME_FORMAT = 'Y-m-d H:i:s';
+    final public const DATE_FORMAT = 'Y-m-d';
     final public const DATETIME_MICRO_FORMAT = 'Y-m-d H:i:s.u';
 
     public static function getDefaultDateTimeImmutable() : \DateTimeImmutable
