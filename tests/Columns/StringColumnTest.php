@@ -3,6 +3,7 @@
 namespace Composite\Entity\Tests\Columns;
 
 use Composite\Entity\AbstractEntity;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class StringColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -32,9 +33,7 @@ final class StringColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider cast_dataProvider
-     */
+    #[DataProvider('cast_dataProvider')]
     public function test_cast(mixed $value, ?string $expected): void
     {
         $class = new class extends AbstractEntity {
@@ -68,9 +67,7 @@ final class StringColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider uncast_dataProvider
-     */
+    #[DataProvider('uncast_dataProvider')]
     public function test_uncast(mixed $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {

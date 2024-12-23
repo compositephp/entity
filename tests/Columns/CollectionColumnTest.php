@@ -8,10 +8,11 @@ use Composite\Entity\Tests\TestStand\TestEntity;
 use Composite\Entity\Tests\TestStand\TestEntityCollection;
 use Composite\Entity\Tests\TestStand\TestStringCollection;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
 {
-    public static function entityCast_dataProvider(): array
+    public static function cast_dataProvider(): array
     {
         $sub1 = new TestEntity(str: 'foo');
         $sub2 = new TestEntity(str: 'bar');
@@ -51,9 +52,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider entityCast_dataProvider
-     */
+    #[DataProvider('cast_dataProvider')]
     public function test_entityCast(mixed $value, ?TestEntityCollection $expected): void
     {
         $class = new class extends AbstractEntity {
@@ -87,9 +86,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider stringCast_dataProvider
-     */
+    #[DataProvider('stringCast_dataProvider')]
     public function test_stringCast(mixed $value, ?TestStringCollection $expected): void
     {
         $class = new class extends AbstractEntity {
@@ -101,7 +98,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
         $this->compareCollections($expected, $entity->column);
     }
 
-    public static function entityUncast_dataProvider(): array
+    public static function uncast_dataProvider(): array
     {
         $sub1 = new TestEntity(str: 'foo');
         $sub2 = new TestEntity(str: 'bar');
@@ -127,9 +124,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider entityUncast_dataProvider
-     */
+    #[DataProvider('uncast_dataProvider')]
     public function test_entityUncast(?TestEntityCollection $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {
@@ -166,9 +161,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider stringUncast_dataProvider
-     */
+    #[DataProvider('stringUncast_dataProvider')]
     public function test_stringUncast(?TestStringCollection $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {

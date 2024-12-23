@@ -5,6 +5,7 @@ namespace Composite\Entity\Tests;
 use Composite\Entity\AbstractEntity;
 use Composite\Entity\Helpers\DateTimeHelper;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -76,9 +77,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider hydration_dataProvider
-     */
+    #[DataProvider('hydration_dataProvider')]
     public function test_hydration(AbstractEntity $entity, array $expected): void
     {
         $actual = $entity->toArray();
@@ -131,9 +130,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider changedColumns_dataProvider
-     */
+    #[DataProvider('changedColumns_dataProvider')]
     public function test_changedColumns(array $createData, array $expectedChangedColumns): void
     {
         $entity = TestStand\TestAutoIncrementEntity::fromArray($createData);

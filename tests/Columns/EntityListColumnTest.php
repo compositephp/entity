@@ -9,6 +9,7 @@ use Composite\Entity\Tests\TestStand\TestBackedStringEnum;
 use Composite\Entity\Tests\TestStand\TestEntity;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
 use Composite\Entity\Tests\TestStand\TestUnitEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -63,9 +64,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider cast_dataProvider
-     */
+    #[DataProvider('cast_dataProvider')]
     public function test_cast(mixed $value, ?array $expected): void
     {
         $class = new class extends AbstractEntity {
@@ -102,9 +101,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider castWIthKey_dataProvider
-     */
+    #[DataProvider('castWithKey_dataProvider')]
     public function test_castWithKey(mixed $value, ?array $expected): void
     {
         $class = new class extends AbstractEntity {
@@ -181,9 +178,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider uncast_dataProvider
-     */
+    #[DataProvider('uncast_dataProvider')]
     public function test_uncast(mixed $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {
@@ -217,9 +212,7 @@ final class EntityListColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider uncastWithKey_dataProvider
-     */
+    #[DataProvider('uncastWithKey_dataProvider')]
     public function test_uncastWithKey(mixed $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {

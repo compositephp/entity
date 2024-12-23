@@ -7,6 +7,7 @@ use Composite\Entity\Attributes\ListOf;
 use Composite\Entity\Attributes\SkipSerialization;
 use Composite\Entity\Columns\AbstractColumn;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
 {
@@ -51,9 +52,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider visibility_dataProvider
-     */
+    #[DataProvider('visibility_dataProvider')]
     public function test_visibility(AbstractEntity $entity, array $expected): void
     {
         $schema = $entity::schema();
@@ -90,9 +89,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider type_dataProvider
-     */
+    #[DataProvider('type_dataProvider')]
     public function test_type(AbstractEntity $entity, array $expected): void
     {
         $schema = $entity::schema();
@@ -124,9 +121,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider hasDefaultValue_dataProvider
-     */
+    #[DataProvider('hasDefaultValue_dataProvider')]
     public function test_hasDefaultValue(AbstractEntity $class, array $expected): void
     {
         $schema = $class::schema();
@@ -168,9 +163,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider defaultValue_dataProvider
-     */
+    #[DataProvider('defaultValue_dataProvider')]
     public function test_defaultValue(AbstractEntity $entity, array $expected): void
     {
         $schema = $entity::schema();
@@ -214,9 +207,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider isNullable_dataProvider
-     */
+    #[DataProvider('isNullable_dataProvider')]
     public function test_isNullable(AbstractEntity $class, array $expected): void
     {
         $schema = $class::schema();
@@ -224,29 +215,6 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
             $this->assertNotNull($schema->getColumn($name));
             $this->assertSame($expectedIsNullable, $schema->getColumn($name)?->isNullable);
         }
-    }
-
-    public static function isReadOnly_dataProvider(): array
-    {
-        return [
-            [
-                'class' => new class extends AbstractEntity {
-                    public string $foo2 = 'foo';
-                    public readonly ?string $bar2;
-
-                    public function __construct(
-                        public  string $foo1 = 'foo',
-                        public readonly ?string $bar1 = null,
-                    ) {}
-                },
-                'expected' => [
-                    'foo1' => false,
-                    'bar1' => true,
-                    'foo2' => false,
-                    'bar2' => true,
-                ]
-            ],
-        ];
     }
 
     public static function isConstructorPromoted_dataProvider(): array
@@ -272,9 +240,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider isConstructorPromoted_dataProvider
-     */
+    #[DataProvider('isConstructorPromoted_dataProvider')]
     public function test_isConstructorPromoted(AbstractEntity $entity, array $expected): void
     {
         $schema = $entity::schema();
@@ -284,11 +250,26 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @dataProvider isReadOnly_dataProvider
-     */
-    public function test_isReadOnly(AbstractEntity $entity, array $expected): void
+    public function test_isReadOnly(): void
     {
+        $entity = new class extends AbstractEntity {
+            public string $foo2 = 'foo';
+            public readonly ?string $bar2;
+
+            public function __construct(
+                public string $foo1 = 'foo',
+                public readonly ?string $bar1 = null,
+            ) {
+            }
+        };
+
+        $expected = [
+            'foo1' => false,
+            'bar1' => true,
+            'foo2' => false,
+            'bar2' => true,
+        ];
+
         $schema = $entity::schema();
         foreach ($expected as $name => $expectedIsReadOnly) {
             $this->assertNotNull($schema->getColumn($name));
@@ -321,9 +302,7 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider notSupported_dataProvider
-     */
+    #[DataProvider('notSupported_dataProvider')]
     public function test_notSupported(AbstractEntity $entity): void
     {
         try {

@@ -6,6 +6,7 @@ use Composite\Entity\AbstractEntity;
 use Composite\Entity\Attributes\Date;
 use Composite\Entity\Helpers\DateTimeHelper;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
 {
@@ -72,9 +73,7 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider cast_dataProvider
-     */
+    #[DataProvider('cast_dataProvider')]
     public function test_cast(mixed $value, ?\DateTime $dateTime, ?\DateTimeImmutable $dateTimeImmutable): void
     {
         $class = new class extends AbstractEntity {
@@ -103,9 +102,7 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider uncast_dataProvider
-     */
+    #[DataProvider('uncast_dataProvider')]
     public function test_uncast(mixed $value, mixed $expected): void
     {
         $entity = new class($value) extends AbstractEntity {
@@ -173,9 +170,7 @@ final class DateTimeColumnTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider date_dataProvider
-     */
+    #[DataProvider('date_dataProvider')]
     public function test_dateUncast(mixed $value, ?string $expected): void
     {
         $class = new class() extends AbstractEntity {
