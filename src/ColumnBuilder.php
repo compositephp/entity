@@ -39,6 +39,9 @@ class ColumnBuilder
             if ($property->isStatic() || $property->isPrivate()) {
                 continue;
             }
+            if (method_exists($property, 'getHooks') && count($property->getHooks()) === 1) {
+                continue;
+            }
             /** @var array<class-string, object> $propertyAttributes */
             $propertyAttributes = [];
             foreach ($property->getAttributes() as $attribute) {
