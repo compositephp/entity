@@ -119,7 +119,7 @@ final class CollectionColumnTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 'value' => $collection,
-                'expected' => json_encode([$sub1, $sub2]),
+                'expected' => json_encode([$sub1->toArray(), $sub2->toArray()]),
             ],
         ];
     }
