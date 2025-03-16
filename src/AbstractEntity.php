@@ -127,7 +127,31 @@ abstract class AbstractEntity implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return $this->toArray();
+        $schema = static::schema();
+        if ($schema->hydrator) {
+            return $schema->hydrator->toArray($this);
+        }
+        $result = [];
+        foreach ($schema->columns as $columnName => $column) {
+            if ($this->isNew() && !$column->isInitialized($this)) {
+                continue;
+            }
+            $value = $this->{$columnName};
+            if ($value === null && $column->isNullable) {
+                $result[$columnName] = null;
+            } else {
+                if ($column instanceof Columns\EntityColumn) {
+                    $result[$columnName] = $value->jsonSerialize();
+                } elseif ($column instanceof Columns\ArrayColumn) {
+                    $result[$columnName] = $value;
+                } elseif ($column instanceof Columns\EntityListColumn) {
+                    $result[$columnName] = array_map(fn ($item) => $item->jsonSerialize(), $value);
+                } else {
+                    $result[$columnName] = $column->uncast($value);
+                }
+            }
+        }
+        return $result;
     }
 
     /**
