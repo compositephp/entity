@@ -3,7 +3,9 @@
 namespace Composite\Entity\Tests;
 
 use Composite\Entity\AbstractEntity;
+use Composite\Entity\Attributes\ListOf;
 use Composite\Entity\Helpers\DateTimeHelper;
+use Composite\Entity\Tests\TestStand\TestEntityWithHydrator;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -253,5 +255,24 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
         $entity->resetChangedColumns(['str' => $entity->str]);
 
         $this->assertEquals(['number' => $entity->number], $entity->getChangedColumns());
+    }
+
+
+    public function test_jsonSerialize(): void
+    {
+        $withHydrator = new TestEntityWithHydrator(str: 'foo', int: 123);
+        $sub = new TestSubEntity(str: 'bar');
+        $entity = new class($withHydrator, [$sub]) extends AbstractEntity {
+            public readonly int $id;
+            public ?int $nullable = null;
+
+            public function __construct(
+                public TestEntityWithHydrator $column1,
+                #[ListOf(TestSubEntity::class)]
+                public array $column2,
+            ) {}
+        };
+        $encoded = json_encode($entity);
+        $this->assertEquals('{"nullable":null,"column1":{"str":"foo","int":123},"column2":[{"str":"bar","number":123}]}', $encoded);
     }
 }

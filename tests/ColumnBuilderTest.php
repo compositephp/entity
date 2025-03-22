@@ -312,4 +312,14 @@ final class ColumnBuilderTest extends \PHPUnit\Framework\TestCase
             $this->assertTrue(true);
         }
     }
+
+    public function test_virtualProperty(): void
+    {
+        $class = new class extends AbstractEntity {
+            public string $foo {get => 'foo';}
+            public string $bar = 'bar';
+        };
+        $schema = $class::schema();
+        $this->assertEmpty($schema->getColumn('foo'));
+    }
 }
