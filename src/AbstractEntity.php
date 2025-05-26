@@ -168,7 +168,11 @@ abstract class AbstractEntity implements \JsonSerializable
             if ($property->isPrivate()) {
                 $propertyName .= ':private';
             }
-            $result[$propertyName] = $property->getValue($this);
+            $propertyValue = $property->getValue($this);
+            if ($propertyValue instanceof \Ramsey\Uuid\UuidInterface) {
+                $propertyValue = $propertyValue->toString() . " (UUIDv{$propertyValue->getVersion()})";
+            }
+            $result[$propertyName] = $propertyValue;
         }
         return $result;
     }

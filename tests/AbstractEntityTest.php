@@ -8,6 +8,8 @@ use Composite\Entity\Helpers\DateTimeHelper;
 use Composite\Entity\Tests\TestStand\TestEntityWithHydrator;
 use Composite\Entity\Tests\TestStand\TestSubEntity;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -223,6 +225,7 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
     public function test_debugInfo(): void
     {
         $entity = new class extends AbstractEntity {
+            public UuidInterface $uuid;
             public int $var1 = 1;
             protected int $var2 = 2;
             private int $var3 = 3;
@@ -230,9 +233,11 @@ final class AbstractEntityTest extends \PHPUnit\Framework\TestCase
             public function __construct(
                 public TestSubEntity $subEntity = new TestSubEntity(),
             ) {
+                $this->uuid = Uuid::fromString('123e4567-e89b-12d3-a456-426655440000');
             }
         };
         $expected = print_r([
+            'uuid' => '123e4567-e89b-12d3-a456-426655440000 (UUIDv1)',
             'var1' => 1,
             'var2' => 2,
             'var3:private' => 3,
